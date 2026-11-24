@@ -403,7 +403,7 @@ def fetch_mint_philharmoniker():
 
 
 def fetch_philoro_20g_bar():
-    """Fetch live price of 20g Philoro Gold Bar (Origin)."""
+    """Fetch live real-time price of 20g Philoro Gold Bar (Origin) via direct API and HTML fallback."""
     cached = _get_cached("philoro_20g")
     if cached:
         return cached
@@ -416,27 +416,71 @@ def fetch_philoro_20g_bar():
         "url": "https://philoro.at/produkt/goldbarren-20-g-philoro-origin-2445v",
     }
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Origin": "https://philoro.at",
+        "Referer": "https://philoro.at/",
+        "Accept": "application/json, text/plain, */*",
+    }
+
+    # Primary: Direct dynamic price API (official endpoint called by philoro frontend)
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
-        resp = requests.get(product["url"], headers=headers, timeout=12)
+        api_url = "https://api.prod-eu.philoro.ch/api/prices/products?skus=2445&country=AT&currency=EUR"
+        resp = requests.get(api_url, headers=headers, timeout=8)
         if resp.status_code == 200:
-            soup = BeautifulSoup(resp.text, "lxml")
-            script = soup.find("script", id="__NUXT_DATA__")
-            if script and script.string:
-                data = json.loads(script.string)
-                for item in data:
-                    if isinstance(item, dict) and "price" in item and "priceCurrency" in item:
-                        price_idx = item["price"]
-                        curr_idx = item["priceCurrency"]
-                        price_val = data[price_idx] if isinstance(price_idx, int) and price_idx < len(data) else None
-                        curr_val = data[curr_idx] if isinstance(curr_idx, int) and curr_idx < len(data) else "EUR"
-                        if isinstance(price_val, (int, float)) and price_val > 500:
-                            product["price"] = str(round(price_val, 2))
-                            product["currency"] = str(curr_val)
-                            break
+            data = resp.json()
+            products = data.get("products", [])
+            if products:
+                prices = products[0].get("prices", [])
+                for p in prices:
+                    if p.get("country") == "AT" and p.get("type") == "buy":
+                        val = round(int(p["centAmount"]) / 100.0, 2)
+                        product["price"] = str(val)
+                        product["buy_price"] = str(val)
+                    elif p.get("country") == "AT" and p.get("type") == "sell":
+                        val = round(int(p["centAmount"]) / 100.0, 2)
+                        product["sell_price"] = str(val)
     except Exception as e:
-        print(f"Philoro 20g error: {e}")
-        product["error"] = str(e)
+        print(f"Philoro API error: {e}")
+
+    # Fallback 1: Extract from page HTML regex
+    if "price" not in product:
+        try:
+            resp = requests.get(product["url"], headers=headers, timeout=10)
+            if resp.status_code == 200:
+                import re
+                matches = re.findall(r"(\d{1,3}(?:\.\d{3})+,\d{2})\s*€", resp.text)
+                if matches:
+                    def parse_eur(s):
+                        return float(s.replace(".", "").replace(",", "."))
+                    product["price"] = str(parse_eur(matches[0]))
+                    product["buy_price"] = str(parse_eur(matches[0]))
+                    if len(matches) > 1:
+                        product["sell_price"] = str(parse_eur(matches[1]))
+        except Exception as e:
+            print(f"Philoro HTML scrape fallback error: {e}")
+
+    # Fallback 2: Nuxt data script
+    if "price" not in product:
+        try:
+            resp = requests.get(product["url"], headers=headers, timeout=10)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, "lxml")
+                script = soup.find("script", id="__NUXT_DATA__")
+                if script and script.string:
+                    data = json.loads(script.string)
+                    for item in data:
+                        if isinstance(item, dict) and "price" in item and "priceCurrency" in item:
+                            price_idx = item["price"]
+                            curr_idx = item["priceCurrency"]
+                            price_val = data[price_idx] if isinstance(price_idx, int) and price_idx < len(data) else None
+                            curr_val = data[curr_idx] if isinstance(curr_idx, int) and curr_idx < len(data) else "EUR"
+                            if isinstance(price_val, (int, float)) and price_val > 500:
+                                product["price"] = str(round(price_val, 2))
+                                product["currency"] = str(curr_val)
+                                break
+        except Exception as e:
+            print(f"Philoro Nuxt fallback error: {e}")
 
     product["updated_at"] = datetime.now(timezone.utc).isoformat()
     if product.get("price"):

@@ -1310,8 +1310,8 @@
                     <span class="sub-val gold" id="philoro20gEgpValue">--</span>
                 </div>
                 <div class="sub-row">
-                    <span class="sub-label">Certification:</span>
-                    <span class="sub-val" style="color: var(--accent-green);">LBMA Certified</span>
+                    <span class="sub-label">Philoro Buyback:</span>
+                    <span class="sub-val" id="philoro20gSellValue">--</span>
                 </div>
             </div>
             <a class="card-link" href="https://philoro.at/produkt/goldbarren-20-g-philoro-origin-2445v" target="_blank">
@@ -1732,6 +1732,12 @@
             if (eurEgp) {
                 document.getElementById('philoro20gEgpValue').textContent =
                     formatPrice(parseFloat(philoro.price) * eurEgp) + ' EGP';
+            }
+            if (philoro.sell_price) {
+                const sellEl = document.getElementById('philoro20gSellValue');
+                if (sellEl) {
+                    sellEl.textContent = '€ ' + formatPrice(philoro.sell_price);
+                }
             }
         }
 
