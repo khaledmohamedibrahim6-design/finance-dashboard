@@ -1462,6 +1462,15 @@
                     grid.appendChild(el);
                 }
             });
+
+            // Ensure any new card (like Philoro) not in old saved order is also appended
+            const allCards = grid.querySelectorAll('.dash-card');
+            allCards.forEach(card => {
+                const id = card.getAttribute('data-id');
+                if (id && !orderArray.includes(id)) {
+                    grid.appendChild(card);
+                }
+            });
         } catch (e) {
             console.error('Error restoring card order:', e);
         }
