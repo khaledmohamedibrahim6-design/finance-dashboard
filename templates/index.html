@@ -2,48 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Finance Dashboard</title>
     <!-- Tab Favicon & Mobile App Icons -->
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <link rel="apple-touch-icon" href="/static/favicon.svg">
     <meta name="theme-color" content="#0f1117">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- SortableJS for smooth drag & drop on mobile touch & desktop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
     <style>
         :root {
-            --bg-primary: #0f1117;
-            --bg-secondary: #1a1d2e;
-            --bg-card: #1e2235;
-            --bg-card-hover: #252a40;
-            --text-primary: #e8eaed;
-            --text-secondary: #9aa0b4;
-            --text-muted: #6b7280;
+            --bg-primary: #0a0d14;
+            --bg-secondary: #121622;
+            --bg-card: #181d2d;
+            --bg-card-hover: #1f253a;
+            --text-primary: #f0f3f8;
+            --text-secondary: #949db2;
+            --text-muted: #5e687e;
             --accent-gold: #f5a623;
-            --accent-gold-dim: rgba(245, 166, 35, 0.15);
-            --accent-blue: #4f8df5;
-            --accent-blue-dim: rgba(79, 141, 245, 0.15);
-            --accent-green: #34d399;
-            --accent-green-dim: rgba(52, 211, 153, 0.15);
-            --accent-purple: #a78bfa;
-            --accent-purple-dim: rgba(167, 139, 250, 0.15);
-            --accent-red: #f87171;
-            --accent-red-dim: rgba(248, 113, 113, 0.15);
-            --accent-orange: #fb923c;
-            --accent-orange-dim: rgba(251, 146, 60, 0.15);
-            --border: rgba(255, 255, 255, 0.06);
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-            --radius: 16px;
-            --radius-sm: 10px;
+            --accent-gold-dim: rgba(245, 166, 35, 0.16);
+            --accent-blue: #3b82f6;
+            --accent-blue-dim: rgba(59, 130, 246, 0.16);
+            --accent-green: #10b981;
+            --accent-green-dim: rgba(16, 185, 129, 0.16);
+            --accent-purple: #8b5cf6;
+            --accent-purple-dim: rgba(139, 92, 246, 0.16);
+            --accent-red: #ef4444;
+            --accent-red-dim: rgba(239, 68, 68, 0.16);
+            --accent-orange: #f97316;
+            --accent-orange-dim: rgba(249, 115, 22, 0.16);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(245, 166, 35, 0.35);
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            --radius: 14px;
+            --radius-sm: 8px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -51,17 +58,20 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
+            min-height: 100dvh;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Background gradient orbs */
+        /* Ambient glowing background */
         body::before {
             content: '';
             position: fixed;
-            top: -20%;
+            top: -15%;
             left: -10%;
-            width: 500px;
-            height: 500px;
+            width: 450px;
+            height: 450px;
             background: radial-gradient(circle, rgba(245, 166, 35, 0.08) 0%, transparent 70%);
             border-radius: 50%;
             z-index: 0;
@@ -71,22 +81,26 @@
         body::after {
             content: '';
             position: fixed;
-            bottom: -20%;
+            bottom: -15%;
             right: -10%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(79, 141, 245, 0.06) 0%, transparent 70%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.07) 0%, transparent 70%);
             border-radius: 50%;
             z-index: 0;
             pointer-events: none;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1240px;
+            width: 100%;
             margin: 0 auto;
-            padding: 24px 20px;
+            padding: 16px 18px 24px;
             position: relative;
             z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
@@ -94,37 +108,39 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 32px;
+            margin-bottom: 16px;
+            gap: 12px;
             flex-wrap: wrap;
-            gap: 16px;
         }
 
         .header-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
         }
 
         .logo {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--accent-gold), #e8900c);
-            border-radius: 14px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f5a623, #d97706);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 4px 16px rgba(245, 166, 35, 0.3);
+            font-size: 18px;
+            box-shadow: 0 4px 16px rgba(245, 166, 35, 0.35);
+            flex-shrink: 0;
         }
 
         .header-title h1 {
-            font-size: 24px;
+            font-size: 19px;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.4px;
+            line-height: 1.2;
         }
 
         .header-title p {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
             margin-top: 2px;
         }
@@ -132,37 +148,44 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .btn-refresh {
+        .btn-action {
             background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 10px 20px;
+            padding: 7px 12px;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.2s;
             font-family: inherit;
         }
 
-        .btn-refresh:hover {
+        .btn-action:hover {
             background: var(--bg-card-hover);
             border-color: var(--accent-gold);
-            box-shadow: 0 0 20px rgba(245, 166, 35, 0.1);
+            box-shadow: 0 0 16px rgba(245, 166, 35, 0.12);
         }
 
-        .btn-refresh:active {
-            transform: scale(0.97);
+        .btn-action:active {
+            transform: scale(0.96);
+        }
+
+        .btn-action.active {
+            background: var(--accent-gold-dim);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
         }
 
         .btn-refresh.loading i {
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
@@ -170,11 +193,12 @@
         }
 
         .last-update {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 6px;
+            padding: 0 4px;
         }
 
         .last-update .dot {
@@ -186,394 +210,275 @@
         }
 
         @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
         }
 
-        /* Section titles */
-        .section-title {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+        /* Order hint bar */
+        .order-hint {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-bottom: 16px;
-            margin-top: 32px;
+            margin-bottom: 12px;
+            padding: 0 2px;
+        }
+
+        .order-hint span i {
+            margin-right: 4px;
+            color: var(--accent-gold);
+        }
+
+        /* Unified Draggable Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 14px;
+            flex: 1;
+        }
+
+        /* Draggable Card Common Styles */
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: grab;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .dash-card:active {
+            cursor: grabbing;
+        }
+
+        .dash-card:hover {
+            border-color: rgba(255, 255, 255, 0.16);
+            box-shadow: var(--shadow);
+        }
+
+        /* Color accents on top border */
+        .dash-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            opacity: 0.9;
+        }
+
+        .card-gold::before { background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange)); }
+        .card-blue::before { background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); }
+        .card-purple::before { background: linear-gradient(90deg, var(--accent-purple), #ec4899); }
+        .card-green::before { background: linear-gradient(90deg, var(--accent-green), #06b6d4); }
+        .card-orange::before { background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold)); }
+
+        /* Sortable drag state styles */
+        .sortable-ghost {
+            opacity: 0.35;
+            background: rgba(245, 166, 35, 0.1) !important;
+            border: 2px dashed var(--accent-gold) !important;
+            transform: scale(0.98);
+        }
+
+        .sortable-chosen {
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6) !important;
+            border-color: var(--accent-gold) !important;
+        }
+
+        /* Card Header & Drag Handle */
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .card-top-left {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        /* Cards grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            border-radius: var(--radius) var(--radius) 0 0;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .card:hover {
-            border-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .card:hover::before {
-            opacity: 1;
-        }
-
-        .card.gold::before { background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange)); }
-        .card.blue::before { background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); }
-        .card.green::before { background: linear-gradient(90deg, var(--accent-green), #22d3ee); }
-        .card.purple::before { background: linear-gradient(90deg, var(--accent-purple), #ec4899); }
-
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
         .card-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 15px;
+            flex-shrink: 0;
         }
 
-        .card-icon.gold {
-            background: var(--accent-gold-dim);
+        .icon-gold { background: var(--accent-gold-dim); color: var(--accent-gold); }
+        .icon-blue { background: var(--accent-blue-dim); color: var(--accent-blue); }
+        .icon-purple { background: var(--accent-purple-dim); color: var(--accent-purple); }
+        .icon-green { background: var(--accent-green-dim); color: var(--accent-green); }
+        .icon-orange { background: var(--accent-orange-dim); color: var(--accent-orange); }
+
+        .card-title-group h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .card-title-group p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .drag-handle {
+            color: var(--text-muted);
+            font-size: 13px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            cursor: grab;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .drag-handle:hover {
             color: var(--accent-gold);
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        .card-icon.blue {
-            background: var(--accent-blue-dim);
-            color: var(--accent-blue);
+        /* Card Content & Values */
+        .card-main-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 27px;
+            font-weight: 700;
+            letter-spacing: -0.8px;
+            line-height: 1.1;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
         }
 
-        .card-icon.green {
-            background: var(--accent-green-dim);
-            color: var(--accent-green);
-        }
-
-        .card-icon.purple {
-            background: var(--accent-purple-dim);
-            color: var(--accent-purple);
-        }
-
-        .card-icon.orange {
-            background: var(--accent-orange-dim);
-            color: var(--accent-orange);
+        .card-main-val .curr {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
         }
 
         .card-badge {
             font-size: 11px;
-            font-weight: 500;
-            padding: 4px 10px;
+            font-weight: 600;
+            padding: 3px 8px;
             border-radius: 20px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
+            gap: 4px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .badge-up { background: var(--accent-green-dim); color: var(--accent-green); }
+        .badge-down { background: var(--accent-red-dim); color: var(--accent-red); }
+        .badge-neutral { background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); }
+
+        /* Secondary Stats Rows */
+        .card-sub-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
             gap: 4px;
         }
 
-        .badge-up {
-            background: var(--accent-green-dim);
-            color: var(--accent-green);
-        }
-
-        .badge-down {
-            background: var(--accent-red-dim);
-            color: var(--accent-red);
-        }
-
-        .badge-neutral {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-secondary);
-        }
-
-        .card-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .card-value {
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: -1px;
-            line-height: 1.1;
-            margin-bottom: 4px;
-        }
-
-        .card-value .currency {
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-right: 2px;
-        }
-
-        .card-subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
-
-        .card-footer {
-            margin-top: 16px;
-            padding-top: 14px;
-            border-top: 1px solid var(--border);
+        .sub-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            font-size: 11.5px;
         }
 
-        .card-footer-label {
-            font-size: 12px;
+        .sub-label {
             color: var(--text-muted);
         }
 
-        .card-footer-value {
-            font-size: 13px;
+        .sub-val {
+            font-family: 'JetBrains Mono', monospace;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
-        /* Product cards (Mint) */
-        .product-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 24px;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .product-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange));
-            border-radius: var(--radius) var(--radius) 0 0;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .product-card:hover {
-            border-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .product-card:hover::before {
-            opacity: 1;
-        }
-
-        .product-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .product-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--accent-gold-dim), rgba(251, 146, 60, 0.15));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
+        .sub-val.gold {
             color: var(--accent-gold);
-            flex-shrink: 0;
         }
 
-        .product-info h3 {
-            font-size: 15px;
-            font-weight: 600;
-            line-height: 1.3;
+        /* Gold Spot Wide Layout */
+        #card-gold-spot {
+            grid-column: span 12;
         }
 
-        .product-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-            display: flex;
+        .gold-grid {
+            display: grid;
+            grid-template-columns: 1.4fr repeat(4, 1fr);
             gap: 12px;
-        }
-
-        .product-meta span {
-            display: flex;
             align-items: center;
-            gap: 4px;
         }
 
-        .product-price {
-            display: flex;
-            align-items: baseline;
-            gap: 8px;
+        .gold-mini-stat {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            text-align: center;
         }
 
-        .product-price .price-value {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .product-price .price-currency {
-            font-size: 16px;
+        .gold-mini-stat .mini-label {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
             font-weight: 500;
-            color: var(--text-secondary);
         }
 
-        .product-link {
+        .gold-mini-stat .mini-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        /* Desktop Spans */
+        #card-usd-egp { grid-column: span 4; }
+        #card-eur-egp { grid-column: span 4; }
+        #card-eur-usd { grid-column: span 4; }
+        #card-mint-20g { grid-column: span 6; }
+        #card-mint-phil { grid-column: span 6; }
+
+        /* External Link */
+        .card-link {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 4px;
+            font-size: 11px;
             color: var(--accent-blue);
             text-decoration: none;
+            margin-top: 8px;
             font-weight: 500;
-            transition: color 0.2s;
         }
 
-        .product-link:hover {
-            color: #6ea8ff;
-        }
+        .card-link:hover { text-decoration: underline; }
 
-        /* Gold spot price wide card */
-        .gold-spot-card {
-            grid-column: 1 / -1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 28px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .gold-spot-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange), var(--accent-gold));
-            border-radius: var(--radius) var(--radius) 0 0;
-        }
-
-        .gold-spot-inner {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            align-items: center;
-        }
-
-        .gold-spot-main {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .gold-spot-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, var(--accent-gold), #e8900c);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            box-shadow: 0 8px 24px rgba(245, 166, 35, 0.25);
-            flex-shrink: 0;
-        }
-
-        .gold-spot-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-bottom: 6px;
-        }
-
-        .gold-spot-value {
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            background: linear-gradient(135deg, var(--accent-gold), #ffd700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .gold-stat {
-            text-align: center;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-
-        .gold-stat-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .gold-stat-value {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        /* Loading state */
+        /* Skeletons */
         .skeleton {
-            background: linear-gradient(90deg,
-                var(--bg-card-hover) 25%,
-                rgba(255, 255, 255, 0.05) 50%,
-                var(--bg-card-hover) 75%
-            );
+            background: linear-gradient(90deg, var(--bg-card-hover) 25%, rgba(255, 255, 255, 0.06) 50%, var(--bg-card-hover) 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s ease-in-out infinite;
-            border-radius: 8px;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+            display: inline-block;
         }
 
         @keyframes shimmer {
@@ -581,103 +486,10 @@
             100% { background-position: -200% 0; }
         }
 
-        .skeleton-text {
-            height: 32px;
-            width: 160px;
-        }
+        .sk-val { height: 26px; width: 140px; }
+        .sk-sm { height: 16px; width: 80px; }
 
-        .skeleton-small {
-            height: 16px;
-            width: 100px;
-            margin-top: 8px;
-        }
-
-        /* Error state */
-        .error-msg {
-            color: var(--accent-red);
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* EGP conversion row */
-        .egp-conversions {
-            margin-top: 8px;
-            padding: 10px 14px;
-            background: rgba(245, 166, 35, 0.06);
-            border-radius: 8px;
-            border: 1px solid rgba(245, 166, 35, 0.1);
-        }
-
-        .egp-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 13px;
-        }
-
-        .egp-row + .egp-row {
-            margin-top: 6px;
-            padding-top: 6px;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .egp-label {
-            color: var(--text-muted);
-        }
-
-        .egp-value {
-            font-weight: 600;
-            color: var(--accent-gold);
-        }
-
-        /* Source links */
-        .sources {
-            margin-top: 32px;
-            padding: 20px;
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-        }
-
-        .sources h3 {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .source-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .source-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .source-link:hover {
-            background: var(--bg-card-hover);
-            color: var(--text-primary);
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        /* Auto-refresh indicator */
+        /* Progress Bar */
         .auto-refresh-bar {
             position: fixed;
             bottom: 0;
@@ -692,44 +504,28 @@
             height: 100%;
             background: linear-gradient(90deg, var(--accent-gold), var(--accent-blue));
             transition: width 1s linear;
-            border-radius: 0 2px 2px 0;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container { padding: 16px 12px; }
-            .header { margin-bottom: 20px; }
-            .header-title h1 { font-size: 20px; }
-            .cards-grid { grid-template-columns: 1fr; }
-            .gold-spot-value { font-size: 28px; }
-            .card-value { font-size: 26px; }
-            .gold-spot-inner {
-                grid-template-columns: 1fr 1fr;
-            }
-            .gold-spot-main {
-                grid-column: 1 / -1;
-            }
-        }
-
-        /* Toast notification */
+        /* Toast */
         .toast {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 20px;
+            right: 20px;
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-hover);
             border-radius: var(--radius-sm);
-            padding: 14px 20px;
-            font-size: 13px;
+            padding: 10px 16px;
+            font-size: 12px;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            transform: translateY(100px);
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: translateY(80px);
             opacity: 0;
             transition: all 0.3s ease;
             z-index: 1000;
+            pointer-events: none;
         }
 
         .toast.show {
@@ -737,8 +533,175 @@
             opacity: 1;
         }
 
-        .toast i {
-            color: var(--accent-green);
+        /* ========================================================
+           📱 SPECIAL MOBILE COMPACT NO-SCROLL VIEW (Default & Mode)
+           ======================================================== */
+        @media (max-width: 768px) {
+            body {
+                height: 100vh;
+                height: 100dvh;
+                overflow: hidden; /* Fits in one single screen without scrolling! */
+            }
+
+            .container {
+                padding: 10px 10px 8px;
+                height: 100%;
+                max-height: 100dvh;
+                justify-content: flex-start;
+            }
+
+            .header {
+                margin-bottom: 8px;
+                gap: 6px;
+            }
+
+            .header-left .logo {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+                border-radius: 8px;
+            }
+
+            .header-title h1 {
+                font-size: 15px;
+            }
+
+            .header-title p {
+                display: none;
+            }
+
+            .header-actions {
+                gap: 5px;
+            }
+
+            .btn-action {
+                padding: 5px 8px;
+                font-size: 11px;
+            }
+
+            .last-update {
+                font-size: 10px;
+            }
+
+            .order-hint {
+                font-size: 10px;
+                margin-bottom: 6px;
+            }
+
+            /* 2-column Compact Dashboard Grid that perfectly fits mobile viewport */
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px;
+                flex: 1;
+                align-content: stretch;
+            }
+
+            .dash-card {
+                padding: 10px 10px 8px;
+                border-radius: 10px;
+                grid-column: span 1 !important;
+                min-height: 0;
+            }
+
+            /* Gold Spot card spans full width or fits top row */
+            #card-gold-spot {
+                grid-column: span 2 !important;
+            }
+
+            .card-top {
+                margin-bottom: 4px;
+            }
+
+            .card-icon {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+                border-radius: 7px;
+            }
+
+            .card-title-group h3 {
+                font-size: 12px;
+            }
+
+            .card-title-group p {
+                font-size: 9.5px;
+            }
+
+            .drag-handle {
+                font-size: 12px;
+                padding: 2px 4px;
+            }
+
+            .card-main-val {
+                font-size: 19px;
+                margin-bottom: 4px;
+                letter-spacing: -0.5px;
+            }
+
+            .card-main-val .curr {
+                font-size: 11px;
+            }
+
+            .card-sub-box {
+                margin-top: 4px;
+                padding: 5px 7px;
+                gap: 2px;
+            }
+
+            .sub-row {
+                font-size: 10px;
+            }
+
+            .card-link {
+                display: none; /* Hide outbound link in ultra-compact view to save vertical space */
+            }
+
+            /* Gold Spot Mobile Layout */
+            .gold-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
+            .gold-main-block {
+                grid-column: span 2;
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+            }
+
+            .gold-mini-stat {
+                padding: 4px 6px;
+            }
+
+            .gold-mini-stat .mini-label {
+                font-size: 9px;
+                margin-bottom: 1px;
+            }
+
+            .gold-mini-stat .mini-val {
+                font-size: 12.5px;
+            }
+
+            /* Allow user to switch to normal scrolling mode if desired */
+            body.mode-scroll {
+                height: auto !important;
+                overflow-y: auto !important;
+            }
+
+            body.mode-scroll .container {
+                height: auto;
+                max-height: none;
+            }
+
+            body.mode-scroll .dashboard-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            body.mode-scroll .card-link {
+                display: inline-flex;
+            }
         }
     </style>
 </head>
@@ -749,255 +712,383 @@
     <header class="header">
         <div class="header-left">
             <div class="logo">
-                <i class="fas fa-chart-line" style="color: white;"></i>
+                <i class="fas fa-coins" style="color: white;"></i>
             </div>
             <div class="header-title">
-                <h1>Finance Dashboard</h1>
-                <p>Exchange rates, gold prices & more</p>
+                <h1>Finance Radar</h1>
+                <p>Live Rates & Bullion Tracker</p>
             </div>
         </div>
         <div class="header-actions">
-            <div class="last-update" id="lastUpdate">
-                <span class="dot"></span>
-                <span id="updateText">Loading...</span>
-            </div>
-            <button class="btn-refresh" onclick="refreshData()" id="refreshBtn">
+            <button class="btn-action" id="toggleScrollBtn" onclick="toggleScrollMode()" title="Toggle No-Scroll / Scroll Mode">
+                <i class="fas fa-compress-arrows-alt"></i>
+                <span id="scrollModeText">Scroll</span>
+            </button>
+            <button class="btn-action" onclick="resetCardOrder()" title="Reset default card order">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="btn-action btn-refresh" onclick="refreshData()" id="refreshBtn">
                 <i class="fas fa-sync-alt"></i>
-                Refresh
+                <span>Refresh</span>
             </button>
         </div>
     </header>
 
-    <!-- Exchange Rates Section -->
-    <div class="section-title">
-        <i class="fas fa-exchange-alt" style="color: var(--accent-blue);"></i>
-        Exchange Rates
-    </div>
-    <div class="cards-grid">
-        <!-- USD to EGP -->
-        <div class="card blue" id="cardUsdEgp">
-            <div class="card-header">
-                <div class="card-icon blue">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <span class="card-badge badge-neutral" id="usdBadge">
-                    <i class="fas fa-minus"></i> --
-                </span>
-            </div>
-            <div class="card-label">USD → EGP</div>
-            <div class="card-value" id="usdEgpValue">
-                <div class="skeleton skeleton-text"></div>
-            </div>
-            <div class="card-subtitle">1 US Dollar = ? Egyptian Pound</div>
-            <div class="card-footer">
-                <span class="card-footer-label">Source</span>
-                <span class="card-footer-value" id="exchangeSource" style="color: var(--accent-blue);">--</span>
-            </div>
-        </div>
-
-        <!-- EUR to EGP -->
-        <div class="card purple" id="cardEurEgp">
-            <div class="card-header">
-                <div class="card-icon purple">
-                    <i class="fas fa-euro-sign"></i>
-                </div>
-                <span class="card-badge badge-neutral" id="eurBadge">
-                    <i class="fas fa-minus"></i> --
-                </span>
-            </div>
-            <div class="card-label">EUR → EGP</div>
-            <div class="card-value" id="eurEgpValue">
-                <div class="skeleton skeleton-text"></div>
-            </div>
-            <div class="card-subtitle">1 Euro = ? Egyptian Pound</div>
-            <div class="card-footer">
-                <span class="card-footer-label">Source</span>
-                <span class="card-footer-value" style="color: var(--accent-purple);" id="exchangeSource2">--</span>
-            </div>
-        </div>
-
-        <!-- EUR to USD (bonus) -->
-        <div class="card green" id="cardEurUsd">
-            <div class="card-header">
-                <div class="card-icon green">
-                    <i class="fas fa-coins"></i>
-                </div>
-            </div>
-            <div class="card-label">EUR → USD</div>
-            <div class="card-value" id="eurUsdValue">
-                <div class="skeleton skeleton-text"></div>
-            </div>
-            <div class="card-subtitle">Euro to US Dollar cross rate</div>
+    <!-- Order Hint -->
+    <div class="order-hint">
+        <span><i class="fas fa-arrows-alt"></i> Hold & drag any card to customize your screen</span>
+        <div class="last-update" id="lastUpdate">
+            <span class="dot"></span>
+            <span id="updateText">Loading...</span>
         </div>
     </div>
 
-    <!-- Gold Spot Price Section -->
-    <div class="section-title">
-        <i class="fas fa-gem" style="color: var(--accent-gold);"></i>
-        Gold Spot Price
-    </div>
-    <div class="cards-grid">
-        <div class="gold-spot-card" id="goldSpotCard">
-            <div class="gold-spot-inner">
-                <div class="gold-spot-main">
-                    <div class="gold-spot-icon">
-                        <i class="fas fa-coins" style="color: white;"></i>
+    <!-- Draggable Dynamic Dashboard Cards Grid -->
+    <div class="dashboard-grid" id="dashboardGrid">
+
+        <!-- 1. Gold Spot Card (XAU/USD + Silver) -->
+        <div class="dash-card card-gold" id="card-gold-spot" data-id="card-gold-spot">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-gold">
+                        <i class="fas fa-gem"></i>
                     </div>
-                    <div>
-                        <div class="gold-spot-label">Gold Spot Price (XAU/USD)</div>
-                        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                            <div class="gold-spot-value" id="goldOzValue">
-                                <div class="skeleton skeleton-text" style="height: 40px; width: 200px;"></div>
-                            </div>
-                            <span class="card-badge badge-neutral" id="goldChangeBadge" style="font-size: 13px; padding: 5px 12px;">
-                                <i class="fas fa-minus"></i> --
-                            </span>
-                        </div>
-                        <div class="card-subtitle" style="margin-top: 4px;">
-                            per troy ounce · <span id="goldMarketTime" style="color: var(--text-muted);">--</span>
-                        </div>
+                    <div class="card-title-group">
+                        <h3>Gold Spot (XAU/USD)</h3>
+                        <p id="goldMarketTime">Live spot market</p>
                     </div>
                 </div>
-                <div class="gold-stat">
-                    <div class="gold-stat-label">Per Gram (USD)</div>
-                    <div class="gold-stat-value" id="goldGramUsd">--</div>
-                </div>
-                <div class="gold-stat">
-                    <div class="gold-stat-label">Per Gram (EUR)</div>
-                    <div class="gold-stat-value" id="goldGramEur">--</div>
-                </div>
-                <div class="gold-stat">
-                    <div class="gold-stat-label">Per Gram (EGP)</div>
-                    <div class="gold-stat-value" id="goldGramEgp" style="color: var(--accent-gold);">--</div>
-                </div>
-                <div class="gold-stat">
-                    <div class="gold-stat-label"><i class="fas fa-circle" style="font-size: 8px; color: #c0c0c0;"></i> Silver (XAG/USD)</div>
-                    <div class="gold-stat-value" id="silverOzUsd">--</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="card-badge badge-neutral" id="goldChangeBadge">--</span>
+                    <i class="fas fa-grip-vertical drag-handle"></i>
                 </div>
             </div>
-            <!-- EGP conversion summary -->
-            <div class="egp-conversions" id="goldEgpConversions" style="margin-top: 20px; display: none;">
-                <div class="egp-row">
-                    <span class="egp-label">1 oz Gold in EGP</span>
-                    <span class="egp-value" id="goldOzEgp">--</span>
+
+            <div class="gold-grid">
+                <div class="gold-main-block">
+                    <div class="card-main-val" id="goldOzValue">
+                        <span class="skeleton sk-val"></span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">per oz (31.1g)</div>
                 </div>
-                <div class="egp-row">
-                    <span class="egp-label">20g Gold Bar in EGP (spot)</span>
-                    <span class="egp-value" id="gold20gEgp">--</span>
+                <div class="gold-mini-stat">
+                    <div class="mini-label">Gram (USD)</div>
+                    <div class="mini-val" id="goldGramUsd">--</div>
+                </div>
+                <div class="gold-mini-stat">
+                    <div class="mini-label">Gram (EUR)</div>
+                    <div class="mini-val" id="goldGramEur">--</div>
+                </div>
+                <div class="gold-mini-stat">
+                    <div class="mini-label">Gram (EGP)</div>
+                    <div class="mini-val" id="goldGramEgp" style="color: var(--accent-gold);">--</div>
+                </div>
+                <div class="gold-mini-stat">
+                    <div class="mini-label">Silver (XAG)</div>
+                    <div class="mini-val" id="silverOzUsd">--</div>
+                </div>
+            </div>
+
+            <div class="card-sub-box" id="goldEgpConversions" style="margin-top: 8px; display: none;">
+                <div class="sub-row">
+                    <span class="sub-label">1 oz Spot in EGP:</span>
+                    <span class="sub-val gold" id="goldOzEgp">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">20g Spot in EGP:</span>
+                    <span class="sub-val gold" id="gold20gEgp">--</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Austrian Mint Products Section -->
-    <div class="section-title">
-        <i class="fas fa-award" style="color: var(--accent-gold);"></i>
-        Austrian Mint Products
-    </div>
-    <div class="cards-grid">
-        <!-- 20g Gold Bar -->
-        <div class="product-card" id="product20g">
-            <div class="product-header">
-                <div class="product-icon">
-                    <i class="fas fa-bars"></i>
-                </div>
-                <div class="product-info">
-                    <h3>20 Gram Gold Minted Bar</h3>
-                    <div class="product-meta">
-                        <span><i class="fas fa-weight-hanging"></i> 20g</span>
-                        <span><i class="fas fa-certificate"></i> 999.9 Fine</span>
+        <!-- 2. USD -> EGP -->
+        <div class="dash-card card-blue" id="card-usd-egp" data-id="card-usd-egp">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-blue">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>USD → EGP</h3>
+                        <p>US Dollar to Egyptian Pound</p>
                     </div>
                 </div>
+                <i class="fas fa-grip-vertical drag-handle"></i>
             </div>
-            <div class="product-price">
-                <span class="price-currency" id="bar20gCurrency">EUR</span>
-                <span class="price-value" id="bar20gPrice">
-                    <div class="skeleton skeleton-text" style="height: 28px;"></div>
-                </span>
-            </div>
-            <div class="egp-conversions" id="bar20gEgp" style="display: none;">
-                <div class="egp-row">
-                    <span class="egp-label">In EGP</span>
-                    <span class="egp-value" id="bar20gEgpValue">--</span>
+            <div>
+                <div class="card-main-val" id="usdEgpValue">
+                    <span class="skeleton sk-val"></span>
                 </div>
             </div>
-            <a class="product-link" href="https://www.muenzeoesterreich.com/en/products/20-gram-gold-muenze-oesterreich-minted-bar" target="_blank">
-                View on Austrian Mint <i class="fas fa-external-link-alt"></i>
-            </a>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">Official Rate:</span>
+                    <span class="sub-val" id="usdEgpValSub">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">Source:</span>
+                    <span class="sub-val" id="exchangeSource" style="color: var(--accent-blue);">ECB / Market</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Vienna Philharmoniker -->
-        <div class="product-card" id="productPhil">
-            <div class="product-header">
-                <div class="product-icon">
-                    <i class="fas fa-compact-disc"></i>
-                </div>
-                <div class="product-info">
-                    <h3>1 oz Vienna Philharmoniker</h3>
-                    <div class="product-meta">
-                        <span><i class="fas fa-weight-hanging"></i> 31.1g (1 oz)</span>
-                        <span><i class="fas fa-certificate"></i> 999.9 Fine</span>
+        <!-- 3. EUR -> EGP -->
+        <div class="dash-card card-purple" id="card-eur-egp" data-id="card-eur-egp">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-purple">
+                        <i class="fas fa-euro-sign"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>EUR → EGP</h3>
+                        <p>Euro to Egyptian Pound</p>
                     </div>
                 </div>
+                <i class="fas fa-grip-vertical drag-handle"></i>
             </div>
-            <div class="product-price">
-                <span class="price-currency" id="philCurrency">EUR</span>
-                <span class="price-value" id="philPrice">
-                    <div class="skeleton skeleton-text" style="height: 28px;"></div>
-                </span>
-            </div>
-            <div class="egp-conversions" id="philEgp" style="display: none;">
-                <div class="egp-row">
-                    <span class="egp-label">In EGP</span>
-                    <span class="egp-value" id="philEgpValue">--</span>
+            <div>
+                <div class="card-main-val" id="eurEgpValue">
+                    <span class="skeleton sk-val"></span>
                 </div>
             </div>
-            <a class="product-link" href="https://www.muenzeoesterreich.at/produkte/1-unze-gold-wiener-philharmoniker" target="_blank">
-                View on Austrian Mint <i class="fas fa-external-link-alt"></i>
-            </a>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">Official Rate:</span>
+                    <span class="sub-val" id="eurEgpValSub">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">Source:</span>
+                    <span class="sub-val" id="exchangeSource2" style="color: var(--accent-purple);">ECB / Market</span>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Source Links -->
-    <div class="sources">
-        <h3><i class="fas fa-link"></i> Data Sources</h3>
-        <div class="source-links">
-            <a class="source-link" href="https://www.google.com/search?q=usd+to+egp" target="_blank">
-                <i class="fab fa-google"></i> USD/EGP (Google)
-            </a>
-            <a class="source-link" href="https://www.google.com/search?q=euro+to+egp" target="_blank">
-                <i class="fab fa-google"></i> EUR/EGP (Google)
-            </a>
-            <a class="source-link" href="https://goldprice.org/" target="_blank">
-                <i class="fas fa-coins"></i> goldprice.org
-            </a>
-            <a class="source-link" href="https://www.muenzeoesterreich.com/en/products/20-gram-gold-muenze-oesterreich-minted-bar" target="_blank">
-                <i class="fas fa-landmark"></i> 20g Gold Bar
-            </a>
-            <a class="source-link" href="https://www.muenzeoesterreich.at/produkte/1-unze-gold-wiener-philharmoniker" target="_blank">
-                <i class="fas fa-landmark"></i> Vienna Philharmoniker
+        <!-- 4. EUR -> USD Cross -->
+        <div class="dash-card card-green" id="card-eur-usd" data-id="card-eur-usd">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-green">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>EUR → USD</h3>
+                        <p>Cross rate</p>
+                    </div>
+                </div>
+                <i class="fas fa-grip-vertical drag-handle"></i>
+            </div>
+            <div>
+                <div class="card-main-val" id="eurUsdValue">
+                    <span class="skeleton sk-val"></span>
+                </div>
+            </div>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">1 EUR equals:</span>
+                    <span class="sub-val" id="eurUsdValSub">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">Status:</span>
+                    <span class="sub-val" style="color: var(--accent-green);">Live Cross</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Austrian Mint 20g Gold Bar -->
+        <div class="dash-card card-orange" id="card-mint-20g" data-id="card-mint-20g">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-orange">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>20g Minted Bar</h3>
+                        <p>Münze Österreich · 999.9</p>
+                    </div>
+                </div>
+                <i class="fas fa-grip-vertical drag-handle"></i>
+            </div>
+            <div>
+                <div class="card-main-val" id="bar20gPrice">
+                    <span class="skeleton sk-val"></span>
+                </div>
+            </div>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">In EGP:</span>
+                    <span class="sub-val gold" id="bar20gEgpValue">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">VAT / Tax:</span>
+                    <span class="sub-val" style="color: var(--accent-green);">0% Tax Free</span>
+                </div>
+            </div>
+            <a class="card-link" href="https://www.muenzeoesterreich.com/en/products/20-gram-gold-muenze-oesterreich-minted-bar" target="_blank">
+                Austrian Mint Page <i class="fas fa-external-link-alt"></i>
             </a>
         </div>
+
+        <!-- 6. Austrian Mint 1oz Philharmoniker -->
+        <div class="dash-card card-gold" id="card-mint-phil" data-id="card-mint-phil">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-gold">
+                        <i class="fas fa-compact-disc"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>1 oz Philharmoniker</h3>
+                        <p>Münze Österreich · 31.1g</p>
+                    </div>
+                </div>
+                <i class="fas fa-grip-vertical drag-handle"></i>
+            </div>
+            <div>
+                <div class="card-main-val" id="philPrice">
+                    <span class="skeleton sk-val"></span>
+                </div>
+            </div>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">In EGP:</span>
+                    <span class="sub-val gold" id="philEgpValue">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">Face Value:</span>
+                    <span class="sub-val">100 EUR</span>
+                </div>
+            </div>
+            <a class="card-link" href="https://www.muenzeoesterreich.at/produkte/1-unze-gold-wiener-philharmoniker" target="_blank">
+                Austrian Mint Page <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+
     </div>
 </div>
 
-<!-- Auto-refresh progress bar -->
+<!-- Progress Bar -->
 <div class="auto-refresh-bar">
     <div class="auto-refresh-progress" id="autoRefreshProgress" style="width: 0%;"></div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast">
-    <i class="fas fa-check-circle"></i>
-    <span id="toastText">Data refreshed</span>
+    <i class="fas fa-check-circle" style="color: var(--accent-green);"></i>
+    <span id="toastText">Dashboard updated</span>
 </div>
 
 <script>
     const AUTO_REFRESH_INTERVAL = 300; // 5 minutes
+    const ORDER_STORAGE_KEY = 'finance_dashboard_card_order';
+    const SCROLL_MODE_KEY = 'finance_dashboard_scroll_mode';
+    
     let autoRefreshTimer = null;
     let progressInterval = null;
     let lastData = null;
+    let sortableInstance = null;
 
+    // --- Card Drag & Drop & Persistence ---
+    function initDragAndDrop() {
+        const grid = document.getElementById('dashboardGrid');
+        if (!grid) return;
+
+        // Restore saved order first
+        restoreCardOrder();
+
+        // Initialize SortableJS
+        sortableInstance = new Sortable(grid, {
+            animation: 200,
+            handle: '.drag-handle, .dash-card',
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            delay: 150, // Slight hold delay on touch so users don't drag unintentionally
+            delayOnTouchOnly: true,
+            touchStartThreshold: 5,
+            onEnd: function () {
+                saveCardOrder();
+                showToast('Card order saved!');
+            }
+        });
+    }
+
+    function saveCardOrder() {
+        const grid = document.getElementById('dashboardGrid');
+        const cards = grid.querySelectorAll('.dash-card');
+        const order = Array.from(cards).map(card => card.getAttribute('data-id'));
+        localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
+    }
+
+    function restoreCardOrder() {
+        const grid = document.getElementById('dashboardGrid');
+        const savedOrder = localStorage.getItem(ORDER_STORAGE_KEY);
+        if (!savedOrder) return;
+
+        try {
+            const orderArray = JSON.parse(savedOrder);
+            if (!Array.isArray(orderArray)) return;
+
+            orderArray.forEach(cardId => {
+                const el = document.getElementById(cardId);
+                if (el && grid.contains(el)) {
+                    grid.appendChild(el);
+                }
+            });
+        } catch (e) {
+            console.error('Error restoring card order:', e);
+        }
+    }
+
+    function resetCardOrder() {
+        localStorage.removeItem(ORDER_STORAGE_KEY);
+        const defaultOrder = [
+            'card-gold-spot',
+            'card-usd-egp',
+            'card-eur-egp',
+            'card-eur-usd',
+            'card-mint-20g',
+            'card-mint-phil'
+        ];
+        const grid = document.getElementById('dashboardGrid');
+        defaultOrder.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) grid.appendChild(el);
+        });
+        showToast('Default layout restored');
+    }
+
+    // --- Mobile Scroll / No-Scroll Mode Toggle ---
+    function initScrollMode() {
+        const isScroll = localStorage.getItem(SCROLL_MODE_KEY) === 'true';
+        if (isScroll) {
+            document.body.classList.add('mode-scroll');
+            updateScrollButtonText(true);
+        } else {
+            document.body.classList.remove('mode-scroll');
+            updateScrollButtonText(false);
+        }
+    }
+
+    function toggleScrollMode() {
+        const isNowScroll = document.body.classList.toggle('mode-scroll');
+        localStorage.setItem(SCROLL_MODE_KEY, isNowScroll ? 'true' : 'false');
+        updateScrollButtonText(isNowScroll);
+        showToast(isNowScroll ? 'Scroll view enabled' : 'Compact no-scroll view enabled');
+    }
+
+    function updateScrollButtonText(isScroll) {
+        const btn = document.getElementById('toggleScrollBtn');
+        const text = document.getElementById('scrollModeText');
+        if (isScroll) {
+            btn.classList.add('active');
+            text.textContent = 'Fit';
+            btn.querySelector('i').className = 'fas fa-expand-arrows-alt';
+        } else {
+            btn.classList.remove('active');
+            text.textContent = 'Scroll';
+            btn.querySelector('i').className = 'fas fa-compress-arrows-alt';
+        }
+    }
+
+    // --- Formatting ---
     function formatNumber(num, decimals = 2) {
         if (num == null || isNaN(num)) return '--';
         return Number(num).toLocaleString('en-US', {
@@ -1018,7 +1109,7 @@
         const toast = document.getElementById('toast');
         document.getElementById('toastText').textContent = message;
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
+        setTimeout(() => toast.classList.remove('show'), 2600);
     }
 
     function timeAgo(isoString) {
@@ -1049,147 +1140,104 @@
         }, 1000);
     }
 
+    // --- Update UI with live data ---
     function updateUI(data) {
         lastData = data;
 
-        // --- Exchange Rates ---
+        // 1. Exchange Rates
         const rates = data.exchange_rates || {};
         const usdEgp = rates.usd_egp;
         const eurEgp = rates.eur_egp;
 
         if (usdEgp) {
             document.getElementById('usdEgpValue').innerHTML =
-                `<span class="currency">EGP</span> ${formatNumber(usdEgp, 4)}`;
-        } else {
-            document.getElementById('usdEgpValue').innerHTML =
-                '<span class="error-msg"><i class="fas fa-exclamation-circle"></i> Unavailable</span>';
+                `<span class="curr">EGP</span> ${formatNumber(usdEgp, 2)}`;
+            document.getElementById('usdEgpValSub').textContent = `${formatNumber(usdEgp, 4)} EGP`;
         }
 
         if (eurEgp) {
             document.getElementById('eurEgpValue').innerHTML =
-                `<span class="currency">EGP</span> ${formatNumber(eurEgp, 4)}`;
-        } else {
-            document.getElementById('eurEgpValue').innerHTML =
-                '<span class="error-msg"><i class="fas fa-exclamation-circle"></i> Unavailable</span>';
+                `<span class="curr">EGP</span> ${formatNumber(eurEgp, 2)}`;
+            document.getElementById('eurEgpValSub').textContent = `${formatNumber(eurEgp, 4)} EGP`;
         }
 
-        // EUR/USD cross rate
         if (usdEgp && eurEgp) {
             const eurUsd = eurEgp / usdEgp;
             document.getElementById('eurUsdValue').innerHTML =
-                `<span class="currency">$</span> ${formatNumber(eurUsd, 4)}`;
+                `<span class="curr">$</span> ${formatNumber(eurUsd, 4)}`;
+            document.getElementById('eurUsdValSub').textContent = `$${formatNumber(eurUsd, 4)}`;
         }
 
-        const src = rates.exchange_source || '--';
+        const src = rates.exchange_source || 'ECB / Market';
         document.getElementById('exchangeSource').textContent = src;
         document.getElementById('exchangeSource2').textContent = src;
 
-        // --- Gold Spot Price ---
+        // 2. Gold Spot
         const gold = data.gold_price || {};
-
         if (gold.usd_oz) {
-            document.getElementById('goldOzValue').textContent =
-                '$' + formatPrice(gold.usd_oz);
-        } else {
             document.getElementById('goldOzValue').innerHTML =
-                '<span class="error-msg" style="font-size: 16px;"><i class="fas fa-exclamation-circle"></i> Could not fetch gold price</span>';
+                `<span class="curr">$</span>${formatPrice(gold.usd_oz)}`;
         }
 
-        // Gold change badge
         if (gold.change_usd != null) {
             const isUp = gold.change_usd >= 0;
             const badge = document.getElementById('goldChangeBadge');
             const pct = gold.change_pct != null ? gold.change_pct.toFixed(2) : '0.00';
             badge.className = `card-badge ${isUp ? 'badge-up' : 'badge-down'}`;
-            badge.innerHTML = `<i class="fas fa-caret-${isUp ? 'up' : 'down'}"></i> ${isUp ? '+' : ''}$${gold.change_usd.toFixed(2)} (${isUp ? '+' : ''}${pct}%)`;
+            badge.innerHTML = `<i class="fas fa-caret-${isUp ? 'up' : 'down'}"></i> ${isUp ? '+' : ''}$${gold.change_usd.toFixed(1)} (${isUp ? '+' : ''}${pct}%)`;
         }
 
-        // Market time
         if (gold.market_time) {
             document.getElementById('goldMarketTime').textContent = gold.market_time;
         }
 
         if (gold.usd_gram) {
-            document.getElementById('goldGramUsd').textContent =
-                '$' + formatPrice(gold.usd_gram);
+            document.getElementById('goldGramUsd').textContent = '$' + formatPrice(gold.usd_gram);
         }
 
-        // EUR gram price (direct from API when available)
         if (gold.eur_gram) {
-            document.getElementById('goldGramEur').textContent =
-                '€' + formatPrice(gold.eur_gram);
+            document.getElementById('goldGramEur').textContent = '€' + formatPrice(gold.eur_gram);
         } else if (gold.usd_gram && usdEgp && eurEgp) {
             const eurUsd = eurEgp / usdEgp;
-            const goldGramEur = gold.usd_gram / eurUsd;
-            document.getElementById('goldGramEur').textContent =
-                '€' + formatPrice(goldGramEur);
+            document.getElementById('goldGramEur').textContent = '€' + formatPrice(gold.usd_gram / eurUsd);
         }
 
-        // Calculate gold gram in EGP
         if (gold.usd_gram && usdEgp) {
             const goldGramEgp = gold.usd_gram * usdEgp;
-            document.getElementById('goldGramEgp').textContent =
-                formatPrice(goldGramEgp) + ' EGP';
+            document.getElementById('goldGramEgp').textContent = formatPrice(goldGramEgp) + ' EGP';
 
-            // Show EGP conversions
             const convDiv = document.getElementById('goldEgpConversions');
-            convDiv.style.display = 'block';
-            document.getElementById('goldOzEgp').textContent =
-                formatPrice(gold.usd_oz * usdEgp) + ' EGP';
-            document.getElementById('gold20gEgp').textContent =
-                formatPrice(gold.usd_gram * 20 * usdEgp) + ' EGP';
+            convDiv.style.display = 'flex';
+            document.getElementById('goldOzEgp').textContent = formatPrice(gold.usd_oz * usdEgp) + ' EGP';
+            document.getElementById('gold20gEgp').textContent = formatPrice(gold.usd_gram * 20 * usdEgp) + ' EGP';
         }
 
-        // Silver price
         if (gold.silver_usd_oz) {
-            document.getElementById('silverOzUsd').textContent =
-                '$' + formatPrice(gold.silver_usd_oz);
+            document.getElementById('silverOzUsd').textContent = '$' + formatPrice(gold.silver_usd_oz);
         }
 
-        // --- Mint Products ---
+        // 3. Mint Products
         const bar20g = data.mint_20g_bar || {};
         if (bar20g.price) {
-            const currency = bar20g.currency || 'EUR';
-            document.getElementById('bar20gCurrency').textContent = currency;
-            document.getElementById('bar20gPrice').textContent = formatPrice(bar20g.price);
-
-            // EGP conversion
-            if (eurEgp && currency === 'EUR') {
-                document.getElementById('bar20gEgp').style.display = 'block';
+            document.getElementById('bar20gPrice').innerHTML =
+                `<span class="curr">€</span>${formatPrice(bar20g.price)}`;
+            if (eurEgp) {
                 document.getElementById('bar20gEgpValue').textContent =
                     formatPrice(parseFloat(bar20g.price) * eurEgp) + ' EGP';
             }
-        } else if (bar20g.error) {
-            document.getElementById('bar20gPrice').innerHTML =
-                '<span class="error-msg"><i class="fas fa-exclamation-circle"></i> Unavailable</span>';
-        } else {
-            document.getElementById('bar20gPrice').innerHTML =
-                '<span class="error-msg"><i class="fas fa-exclamation-circle"></i> Price not found</span>';
         }
 
         const phil = data.mint_philharmoniker || {};
         if (phil.price) {
-            const currency = phil.currency || 'EUR';
-            document.getElementById('philCurrency').textContent = currency;
-            document.getElementById('philPrice').textContent = formatPrice(phil.price);
-
-            // EGP conversion
-            if (eurEgp && currency === 'EUR') {
-                document.getElementById('philEgp').style.display = 'block';
+            document.getElementById('philPrice').innerHTML =
+                `<span class="curr">€</span>${formatPrice(phil.price)}`;
+            if (eurEgp) {
                 document.getElementById('philEgpValue').textContent =
                     formatPrice(parseFloat(phil.price) * eurEgp) + ' EGP';
             }
-        } else if (phil.error) {
-            document.getElementById('philPrice').innerHTML =
-                '<span class="error-msg"><i class="fas fa-exclamation-circle"></i> Unavailable</span>';
-        } else {
-            document.getElementById('philPrice').innerHTML =
-                '<span class="error-msg"><i class="fas fa-exclamation-circle"></i> Price not found</span>';
         }
 
-        // --- Update timestamp ---
-        document.getElementById('updateText').textContent =
-            'Updated ' + timeAgo(data.fetched_at);
+        document.getElementById('updateText').textContent = timeAgo(data.fetched_at);
     }
 
     async function fetchData(isRefresh = false) {
@@ -1201,7 +1249,7 @@
             const resp = await fetch(url);
             const data = await resp.json();
             updateUI(data);
-            if (isRefresh) showToast('Data refreshed successfully');
+            if (isRefresh) showToast('Data refreshed!');
         } catch (err) {
             console.error('Fetch error:', err);
             showToast('Failed to fetch data');
@@ -1209,7 +1257,6 @@
             btn.classList.remove('loading');
         }
 
-        // Reset auto-refresh
         if (autoRefreshTimer) clearTimeout(autoRefreshTimer);
         autoRefreshTimer = setTimeout(() => fetchData(true), AUTO_REFRESH_INTERVAL * 1000);
         startAutoRefreshProgress();
@@ -1219,14 +1266,16 @@
         fetchData(true);
     }
 
-    // Initial load
-    fetchData();
+    // Initialize components
+    document.addEventListener('DOMContentLoaded', () => {
+        initDragAndDrop();
+        initScrollMode();
+        fetchData();
+    });
 
-    // Update "time ago" display every 30 seconds
     setInterval(() => {
         if (lastData && lastData.fetched_at) {
-            document.getElementById('updateText').textContent =
-                'Updated ' + timeAgo(lastData.fetched_at);
+            document.getElementById('updateText').textContent = timeAgo(lastData.fetched_at);
         }
     }, 30000);
 </script>
