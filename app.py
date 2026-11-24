@@ -402,6 +402,46 @@ def fetch_mint_philharmoniker():
     return product
 
 
+def fetch_sparklines():
+    """Fetch 7-day historical closing prices for sparklines."""
+    cached = _get_cached("sparklines")
+    if cached:
+        return cached
+
+    history = {}
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
+
+    # Helper for Yahoo chart endpoint
+    def get_closes(symbol):
+        try:
+            r = requests.get(
+                f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range=7d",
+                headers=headers,
+                timeout=5,
+            )
+            if r.status_code == 200:
+                data = r.json()
+                quotes = data["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+                return [round(p, 2) for p in quotes if p is not None]
+        except Exception as e:
+            print(f"Error fetching sparkline for {symbol}: {e}")
+        return []
+
+    gold_closes = get_closes("GC=F")
+    if gold_closes:
+        history["gold"] = gold_closes
+    usd_closes = get_closes("USDEGP=X")
+    if usd_closes:
+        history["usd_egp"] = usd_closes
+    eur_closes = get_closes("EUREGP=X")
+    if eur_closes:
+        history["eur_egp"] = eur_closes
+
+    if history:
+        _set_cached("sparklines", history)
+    return history
+
+
 def fetch_all_data():
     """Fetch all data sources concurrently using threads."""
     results = {}
@@ -421,6 +461,7 @@ def fetch_all_data():
         threading.Thread(
             target=run, args=("mint_philharmoniker", fetch_mint_philharmoniker)
         ),
+        threading.Thread(target=run, args=("sparklines", fetch_sparklines)),
     ]
 
     for t in threads:
