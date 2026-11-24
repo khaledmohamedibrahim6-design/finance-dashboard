@@ -44,6 +44,36 @@
             --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
             --radius: 14px;
             --radius-sm: 8px;
+            --box-sub-bg: rgba(0, 0, 0, 0.25);
+            --box-sub-border: rgba(255, 255, 255, 0.04);
+            --sk-base: #1f253a;
+            --sk-shine: rgba(255, 255, 255, 0.06);
+        }
+
+        /* ☀️ Normal / Light Mode Theme */
+        body.theme-light {
+            --bg-primary: #f0f3f8;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: rgba(0, 0, 0, 0.08);
+            --border-hover: rgba(217, 119, 6, 0.45);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --box-sub-bg: #f1f5f9;
+            --box-sub-border: rgba(0, 0, 0, 0.05);
+            --sk-base: #e2e8f0;
+            --sk-shine: rgba(255, 255, 255, 0.7);
+        }
+
+        body.theme-light::before {
+            background: radial-gradient(circle, rgba(245, 166, 35, 0.12) 0%, transparent 70%);
+        }
+
+        body.theme-light::after {
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
         }
 
         * {
@@ -387,8 +417,8 @@
 
         /* Secondary Stats Rows */
         .card-sub-box {
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
             border-radius: var(--radius-sm);
             padding: 8px 10px;
             margin-top: 10px;
@@ -431,8 +461,8 @@
         }
 
         .gold-mini-stat {
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
             border-radius: var(--radius-sm);
             padding: 10px;
             text-align: center;
@@ -474,7 +504,7 @@
 
         /* Skeletons */
         .skeleton {
-            background: linear-gradient(90deg, var(--bg-card-hover) 25%, rgba(255, 255, 255, 0.06) 50%, var(--bg-card-hover) 75%);
+            background: linear-gradient(90deg, var(--sk-base) 25%, var(--sk-shine) 50%, var(--sk-base) 75%);
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
             border-radius: 6px;
@@ -720,6 +750,10 @@
             </div>
         </div>
         <div class="header-actions">
+            <button class="btn-action" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Light / Dark Mode">
+                <i class="fas fa-sun" id="themeIcon"></i>
+                <span id="themeBtnText">Light</span>
+            </button>
             <button class="btn-action" id="toggleScrollBtn" onclick="toggleScrollMode()" title="Toggle No-Scroll / Scroll Mode">
                 <i class="fas fa-compress-arrows-alt"></i>
                 <span id="scrollModeText">Scroll</span>
@@ -980,6 +1014,7 @@
     const AUTO_REFRESH_INTERVAL = 300; // 5 minutes
     const ORDER_STORAGE_KEY = 'finance_dashboard_card_order';
     const SCROLL_MODE_KEY = 'finance_dashboard_scroll_mode';
+    const THEME_STORAGE_KEY = 'finance_dashboard_theme';
     
     let autoRefreshTimer = null;
     let progressInterval = null;
@@ -1053,6 +1088,39 @@
             if (el) grid.appendChild(el);
         });
         showToast('Default layout restored');
+    }
+
+    // --- Light / Dark Theme Mode ---
+    function initTheme() {
+        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
+        applyTheme(savedTheme, false);
+    }
+
+    function toggleTheme() {
+        const isCurrentLight = document.body.classList.contains('theme-light');
+        const nextTheme = isCurrentLight ? 'dark' : 'light';
+        applyTheme(nextTheme, true);
+    }
+
+    function applyTheme(theme, notify = false) {
+        const icon = document.getElementById('themeIcon');
+        const text = document.getElementById('themeBtnText');
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+
+        if (theme === 'light') {
+            document.body.classList.add('theme-light');
+            if (icon) icon.className = 'fas fa-moon';
+            if (text) text.textContent = 'Dark';
+            if (metaThemeColor) metaThemeColor.setAttribute('content', '#f0f3f8');
+            if (notify) showToast('Switched to Light mode');
+        } else {
+            document.body.classList.remove('theme-light');
+            if (icon) icon.className = 'fas fa-sun';
+            if (text) text.textContent = 'Light';
+            if (metaThemeColor) metaThemeColor.setAttribute('content', '#0f1117');
+            if (notify) showToast('Switched to Dark mode');
+        }
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
     }
 
     // --- Mobile Scroll / No-Scroll Mode Toggle ---
@@ -1268,6 +1336,7 @@
 
     // Initialize components
     document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
         initDragAndDrop();
         initScrollMode();
         fetchData();
