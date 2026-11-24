@@ -1410,6 +1410,8 @@
     const ORDER_STORAGE_KEY = 'finance_dashboard_card_order';
     const SCROLL_MODE_KEY = 'finance_dashboard_scroll_mode';
     const THEME_STORAGE_KEY = 'finance_dashboard_theme';
+    const CURRENT_LAYOUT_VERSION = 'v2_philoro_7cards';
+    const LAYOUT_VERSION_KEY = 'finance_dashboard_layout_version';
     
     let autoRefreshTimer = null;
     let progressInterval = null;
@@ -1421,7 +1423,7 @@
         const grid = document.getElementById('dashboardGrid');
         if (!grid) return;
 
-        // Restore saved order first
+        // Restore saved order first (or auto-reset if new card added)
         restoreCardOrder();
 
         // Initialize SortableJS
@@ -1445,16 +1447,36 @@
         const cards = grid.querySelectorAll('.dash-card');
         const order = Array.from(cards).map(card => card.getAttribute('data-id'));
         localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
+        localStorage.setItem(LAYOUT_VERSION_KEY, CURRENT_LAYOUT_VERSION);
     }
 
     function restoreCardOrder() {
         const grid = document.getElementById('dashboardGrid');
+        const savedVersion = localStorage.getItem(LAYOUT_VERSION_KEY);
         const savedOrder = localStorage.getItem(ORDER_STORAGE_KEY);
+
+        // Auto-clear localStorage if layout version changed (e.g. new card added)
+        if (savedVersion !== CURRENT_LAYOUT_VERSION) {
+            localStorage.removeItem(ORDER_STORAGE_KEY);
+            localStorage.setItem(LAYOUT_VERSION_KEY, CURRENT_LAYOUT_VERSION);
+            return; // Leave default fresh DOM layout
+        }
+
         if (!savedOrder) return;
 
         try {
             const orderArray = JSON.parse(savedOrder);
             if (!Array.isArray(orderArray)) return;
+
+            const allCurrentCards = Array.from(grid.querySelectorAll('.dash-card')).map(c => c.getAttribute('data-id'));
+            
+            // If the number of cards changed or a card is missing, auto-clear and reset
+            const hasNewCards = allCurrentCards.some(id => !orderArray.includes(id));
+            if (hasNewCards || orderArray.length !== allCurrentCards.length) {
+                localStorage.removeItem(ORDER_STORAGE_KEY);
+                localStorage.setItem(LAYOUT_VERSION_KEY, CURRENT_LAYOUT_VERSION);
+                return;
+            }
 
             orderArray.forEach(cardId => {
                 const el = document.getElementById(cardId);
@@ -1462,17 +1484,9 @@
                     grid.appendChild(el);
                 }
             });
-
-            // Ensure any new card (like Philoro) not in old saved order is also appended
-            const allCards = grid.querySelectorAll('.dash-card');
-            allCards.forEach(card => {
-                const id = card.getAttribute('data-id');
-                if (id && !orderArray.includes(id)) {
-                    grid.appendChild(card);
-                }
-            });
         } catch (e) {
             console.error('Error restoring card order:', e);
+            localStorage.removeItem(ORDER_STORAGE_KEY);
         }
     }
 
