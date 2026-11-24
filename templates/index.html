@@ -485,8 +485,9 @@
         #card-usd-egp { grid-column: span 4; }
         #card-eur-egp { grid-column: span 4; }
         #card-eur-usd { grid-column: span 4; }
-        #card-mint-20g { grid-column: span 6; }
-        #card-mint-phil { grid-column: span 6; }
+        #card-mint-20g { grid-column: span 4; }
+        #card-mint-phil { grid-column: span 4; }
+        #card-philoro-20g { grid-column: span 4; }
 
         /* External Link */
         .card-link {
@@ -1283,6 +1284,41 @@
             </a>
         </div>
 
+        <!-- 7. Philoro 20g Gold Bar (Origin) -->
+        <div class="dash-card card-gold" id="card-philoro-20g" data-id="card-philoro-20g">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-gold">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>20g philoro Origin</h3>
+                        <p>philoro EDELMETALLE · 999.9</p>
+                    </div>
+                </div>
+                <i class="fas fa-grip-vertical drag-handle"></i>
+            </div>
+            <div>
+                <div class="card-main-val" id="philoro20gPrice">
+                    <span class="skeleton sk-val"></span>
+                </div>
+            </div>
+            <div class="sparkline-box" id="sparkline-philoro-20g"></div>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">In EGP:</span>
+                    <span class="sub-val gold" id="philoro20gEgpValue">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">Certification:</span>
+                    <span class="sub-val" style="color: var(--accent-green);">LBMA Certified</span>
+                </div>
+            </div>
+            <a class="card-link" href="https://philoro.at/produkt/goldbarren-20-g-philoro-origin-2445v" target="_blank">
+                philoro Product Page <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+
     </div>
 </div>
 
@@ -1312,6 +1348,7 @@
         <div class="calc-chips-row">
             <button class="calc-chip" onclick="setCalcPreset(20, 'gram')">20g Gold</button>
             <button class="calc-chip" onclick="setCalcPreset(1, 'bar20g')">20g Mint Bar</button>
+            <button class="calc-chip" onclick="setCalcPreset(1, 'philoro20g')">20g Philoro</button>
             <button class="calc-chip" onclick="setCalcPreset(1, 'oz')">1 oz Phil</button>
             <button class="calc-chip" onclick="setCalcPreset(50, 'gram')">50g Gold</button>
             <button class="calc-chip" onclick="setCalcPreset(100, 'gram')">100g Gold</button>
@@ -1327,7 +1364,8 @@
             <select id="calcUnit" class="calc-select" onchange="calculate()">
                 <option value="gram">Grams (Gold)</option>
                 <option value="oz">Troy Ounces</option>
-                <option value="bar20g">20g Mint Bar</option>
+                <option value="bar20g">20g Austrian Mint Bar</option>
+                <option value="philoro20g">20g Philoro Origin Bar</option>
                 <option value="phil">1 oz Philharmoniker</option>
                 <option value="usd">USD ($)</option>
                 <option value="eur">EUR (€)</option>
@@ -1437,6 +1475,7 @@
             'card-eur-egp',
             'card-eur-usd',
             'card-mint-20g',
+            'card-philoro-20g',
             'card-mint-phil'
         ];
         const grid = document.getElementById('dashboardGrid');
@@ -1662,6 +1701,17 @@
             }
         }
 
+        // 4. Philoro 20g Bar
+        const philoro = data.philoro_20g_bar || {};
+        if (philoro.price) {
+            document.getElementById('philoro20gPrice').innerHTML =
+                `<span class="curr">€</span>${formatPrice(philoro.price)}`;
+            if (eurEgp) {
+                document.getElementById('philoro20gEgpValue').textContent =
+                    formatPrice(parseFloat(philoro.price) * eurEgp) + ' EGP';
+            }
+        }
+
         document.getElementById('updateText').textContent = timeAgo(data.fetched_at);
 
         // Update Sparklines
@@ -1704,7 +1754,15 @@
             drawSparkline('sparkline-mint-20g', barPoints, '€', '7d');
         }
 
-        // 6. Austrian Mint 1oz Philharmoniker Trend
+        // 6. Philoro 20g Bar Trend
+        if (sparklines.gold && sparklines.gold.length > 1) {
+            const eurUsd = (data.exchange_rates && data.exchange_rates.eur_egp && data.exchange_rates.usd_egp) 
+                ? (data.exchange_rates.eur_egp / data.exchange_rates.usd_egp) : 1.08;
+            const philoroPoints = sparklines.gold.map(oz => roundVal(((oz / 31.1035) * 20) / eurUsd, 2));
+            drawSparkline('sparkline-philoro-20g', philoroPoints, '€', '7d');
+        }
+
+        // 7. Austrian Mint 1oz Philharmoniker Trend
         if (sparklines.gold && sparklines.gold.length > 1) {
             const eurUsd = (data.exchange_rates && data.exchange_rates.eur_egp && data.exchange_rates.usd_egp) 
                 ? (data.exchange_rates.eur_egp / data.exchange_rates.usd_egp) : 1.08;
@@ -1813,6 +1871,7 @@
         const goldUsdGram = (lastData.gold_price && lastData.gold_price.usd_gram) || (goldUsdOz / 31.1035);
 
         const bar20gEur = (lastData.mint_20g_bar && parseFloat(lastData.mint_20g_bar.price)) || (goldUsdGram * 20 / eurUsd);
+        const philoro20gEur = (lastData.philoro_20g_bar && parseFloat(lastData.philoro_20g_bar.price)) || bar20gEur;
         const philEur = (lastData.mint_philharmoniker && parseFloat(lastData.mint_philharmoniker.price)) || (goldUsdOz / eurUsd);
 
         let totalUSD = 0;
@@ -1827,6 +1886,9 @@
         } else if (unit === 'bar20g') {
             totalWeightGrams = val * 20;
             totalUSD = val * bar20gEur * eurUsd;
+        } else if (unit === 'philoro20g') {
+            totalWeightGrams = val * 20;
+            totalUSD = val * philoro20gEur * eurUsd;
         } else if (unit === 'phil') {
             totalWeightGrams = val * 31.1035;
             totalUSD = val * philEur * eurUsd;

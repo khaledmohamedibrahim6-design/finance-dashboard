@@ -402,6 +402,48 @@ def fetch_mint_philharmoniker():
     return product
 
 
+def fetch_philoro_20g_bar():
+    """Fetch live price of 20g Philoro Gold Bar (Origin)."""
+    cached = _get_cached("philoro_20g")
+    if cached:
+        return cached
+
+    product = {
+        "name": "20g Goldbarren philoro Origin",
+        "weight": "20g",
+        "purity": "999.9",
+        "currency": "EUR",
+        "url": "https://philoro.at/produkt/goldbarren-20-g-philoro-origin-2445v",
+    }
+
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"}
+        resp = requests.get(product["url"], headers=headers, timeout=12)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, "lxml")
+            script = soup.find("script", id="__NUXT_DATA__")
+            if script and script.string:
+                data = json.loads(script.string)
+                for item in data:
+                    if isinstance(item, dict) and "price" in item and "priceCurrency" in item:
+                        price_idx = item["price"]
+                        curr_idx = item["priceCurrency"]
+                        price_val = data[price_idx] if isinstance(price_idx, int) and price_idx < len(data) else None
+                        curr_val = data[curr_idx] if isinstance(curr_idx, int) and curr_idx < len(data) else "EUR"
+                        if isinstance(price_val, (int, float)) and price_val > 500:
+                            product["price"] = str(round(price_val, 2))
+                            product["currency"] = str(curr_val)
+                            break
+    except Exception as e:
+        print(f"Philoro 20g error: {e}")
+        product["error"] = str(e)
+
+    product["updated_at"] = datetime.now(timezone.utc).isoformat()
+    if product.get("price"):
+        _set_cached("philoro_20g", product)
+    return product
+
+
 def fetch_sparklines():
     """Fetch 7-day historical closing prices for sparklines."""
     cached = _get_cached("sparklines")
@@ -461,6 +503,7 @@ def fetch_all_data():
         threading.Thread(
             target=run, args=("mint_philharmoniker", fetch_mint_philharmoniker)
         ),
+        threading.Thread(target=run, args=("philoro_20g_bar", fetch_philoro_20g_bar)),
         threading.Thread(target=run, args=("sparklines", fetch_sparklines)),
     ]
 
