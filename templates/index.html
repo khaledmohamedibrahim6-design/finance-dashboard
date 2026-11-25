@@ -1237,6 +1237,112 @@
             border-color: var(--accent-red);
         }
 
+        /* --- 📈 Interactive Historical Charts --- */
+        .sparkline-box {
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.15s ease;
+        }
+        .sparkline-box:hover {
+            background: var(--box-sub-bg);
+        }
+        .history-period-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .history-period-btn {
+            flex: 1;
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
+            color: var(--text-secondary);
+            padding: 7px 10px;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .history-period-btn.active {
+            background: var(--accent-gold);
+            color: #000;
+            border-color: var(--accent-gold);
+            font-weight: 700;
+        }
+        .history-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .history-chart-wrap {
+            position: relative;
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
+            border-radius: var(--radius-sm);
+            padding: 12px 10px 8px;
+            min-height: 210px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .history-tooltip {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-primary);
+            pointer-events: none;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        /* --- 🔔 Price Alerts --- */
+        @keyframes alertPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.45); }
+            50% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+        }
+        .dash-card.card-alert-triggered {
+            border-color: var(--accent-gold) !important;
+            animation: alertPulse 2s infinite;
+        }
+        .alert-hit-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(251, 191, 36, 0.18);
+            color: var(--accent-gold);
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+        .alert-status-pill {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .alert-status-watching {
+            background: var(--box-sub-bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .alert-status-hit {
+            background: rgba(16, 185, 129, 0.16);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
         /* Empty state when user hides all cards */
         .empty-cards-state {
             grid-column: span 12;
@@ -1522,6 +1628,11 @@
             <button class="btn-action" id="portfolioOpenBtn" onclick="openPortfolioModal()" title="My Bullion Portfolio & P&L" style="border-color: var(--accent-green); color: var(--accent-green); background: rgba(16, 185, 129, 0.1);">
                 <i class="fas fa-wallet"></i>
                 <span>Portfolio</span>
+            </button>
+            <button class="btn-action" id="alertsOpenBtn" onclick="openAlertsModal()" title="Price Alerts">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+                <span class="cards-count-badge" id="alertsCountBadge" style="display: none;">0</span>
             </button>
             <button class="btn-action" id="calcOpenBtn" onclick="openCalculator()" title="Gold & Currency Calculator" style="border-color: var(--accent-gold); color: var(--accent-gold); background: var(--accent-gold-dim);">
                 <i class="fas fa-calculator"></i>
@@ -2158,6 +2269,106 @@
     </div>
 </div>
 
+<!-- 📈 Interactive Historical Chart Modal -->
+<div class="calc-backdrop" id="historyModalBackdrop" onclick="handleHistoryBackdropClick(event)">
+    <div class="calc-sheet" id="historySheet" style="max-width: 540px;">
+        <div class="calc-header">
+            <h3 id="historyModalTitle"><i class="fas fa-chart-line" style="color: var(--accent-gold);"></i> Price History</h3>
+            <button class="btn-close-calc" onclick="closeHistoryModal()" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="history-period-tabs" id="historyPeriodTabs">
+            <button class="history-period-btn" data-period="7d" onclick="switchHistoryPeriod('7d')">7D</button>
+            <button class="history-period-btn active" data-period="30d" onclick="switchHistoryPeriod('30d')">30D</button>
+            <button class="history-period-btn" data-period="90d" onclick="switchHistoryPeriod('90d')">90D</button>
+            <button class="history-period-btn" data-period="1y" onclick="switchHistoryPeriod('1y')">1Y</button>
+        </div>
+
+        <div class="history-stats-grid">
+            <div class="portfolio-stat-box">
+                <div class="portfolio-stat-label">Low</div>
+                <div class="portfolio-stat-val" id="histStatLow">--</div>
+            </div>
+            <div class="portfolio-stat-box">
+                <div class="portfolio-stat-label">High</div>
+                <div class="portfolio-stat-val" id="histStatHigh">--</div>
+            </div>
+            <div class="portfolio-stat-box">
+                <div class="portfolio-stat-label">Avg</div>
+                <div class="portfolio-stat-val" id="histStatAvg">--</div>
+            </div>
+            <div class="portfolio-stat-box">
+                <div class="portfolio-stat-label">Change</div>
+                <div class="portfolio-stat-val" id="histStatChg">--</div>
+            </div>
+        </div>
+
+        <div class="history-chart-wrap" id="historyChartWrap">
+            <div class="history-tooltip" id="historyTooltip"></div>
+            <div id="historyChartContainer" style="width: 100%; text-align: center; color: var(--text-muted); font-size: 12px;">
+                Loading chart...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔔 Price Alerts Modal -->
+<div class="calc-backdrop" id="alertsModalBackdrop" onclick="handleAlertsBackdropClick(event)">
+    <div class="calc-sheet" id="alertsSheet" style="max-width: 480px;">
+        <div class="calc-header">
+            <h3><i class="fas fa-bell" style="color: var(--accent-gold);"></i> Price Alerts</h3>
+            <button class="btn-close-calc" onclick="closeAlertsModal()" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; background: var(--box-sub-bg); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--box-sub-border);">
+            <span style="font-size: 12px; color: var(--text-secondary);">Browser Push Notifications</span>
+            <button class="btn-action" id="notifPermBtn" onclick="requestNotifPermission()" style="padding: 5px 10px; font-size: 11px;">
+                Enable
+            </button>
+        </div>
+
+        <div class="calc-chips-title">Create New Alert</div>
+        <div class="portfolio-form-grid">
+            <div class="full-span">
+                <label class="portfolio-field-label" for="alertAssetSelect">Asset / Rate</label>
+                <select class="calc-select" id="alertAssetSelect" style="width: 100%;">
+                    <option value="gold">Gold Spot (USD / oz)</option>
+                    <option value="gold_egp">Gold 1g 24K (EGP)</option>
+                    <option value="philoro_20g">20g philoro Origin (€)</option>
+                    <option value="mint_20g">20g Austrian Mint (€)</option>
+                    <option value="mint_phil">1 oz Philharmoniker (€)</option>
+                    <option value="usd_egp">USD → EGP</option>
+                    <option value="eur_egp">EUR → EGP</option>
+                    <option value="eur_usd">EUR → USD</option>
+                </select>
+            </div>
+            <div>
+                <label class="portfolio-field-label" for="alertCondSelect">Condition</label>
+                <select class="calc-select" id="alertCondSelect" style="width: 100%;">
+                    <option value="above">Above or Equal (≥)</option>
+                    <option value="below">Below or Equal (≤)</option>
+                </select>
+            </div>
+            <div>
+                <label class="portfolio-field-label" for="alertTargetInput">Target Price</label>
+                <input type="number" step="any" min="0" class="portfolio-input" id="alertTargetInput" placeholder="e.g. 2650">
+            </div>
+        </div>
+        <button class="portfolio-add-btn" onclick="addPriceAlert()">
+            <i class="fas fa-bell"></i> Save Price Alert
+        </button>
+
+        <div class="calc-chips-title">Active Alerts</div>
+        <div class="portfolio-list" id="alertsListContainer">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+</div>
+
 <script>
     const AUTO_REFRESH_INTERVAL = 300; // 5 minutes
     const ORDER_STORAGE_KEY = 'finance_dashboard_card_order';
@@ -2183,7 +2394,7 @@
         sortableInstance = new Sortable(grid, {
             animation: 200,
             handle: '.drag-handle, .dash-card',
-            filter: '.card-close-btn, .card-close-btn *, .card-size-btn, .card-size-btn *, .card-manage-btn, .card-manage-btn *, a.card-link',
+            filter: '.card-close-btn, .card-close-btn *, .card-size-btn, .card-size-btn *, .card-manage-btn, .card-manage-btn *, .sparkline-box, .sparkline-box *, a.card-link',
             preventOnFilter: false,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
@@ -2857,6 +3068,9 @@
         // Render Portfolio with live data
         renderPortfolio(data);
 
+        // Evaluate Price Alerts
+        evaluatePriceAlerts(data);
+
         // Recalculate if calculator is initialized
         calculate();
     }
@@ -3166,11 +3380,347 @@
                     <polygon fill="${fillColor}" points="${areaPts}" />
                     <polyline fill="none" stroke="${strokeColor}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" points="${pts}" />
                 </svg>
-                <span class="sparkline-trend ${isUp ? 'trend-up' : 'trend-down'}" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;" title="7-day change: ${sign}${diff.toFixed(2)} ${unit}">
+                <span class="sparkline-trend ${isUp ? 'trend-up' : 'trend-down'}" style="font-size: 10px; font-family: 'JetBrains Mono', monospace; flex-shrink: 0;" title="Click for 7D / 30D / 90D / 1Y chart · 7d change: ${sign}${diff.toFixed(2)} ${unit}">
                     <i class="fas fa-caret-${isUp ? 'up' : 'down'}"></i> ${pctText} <span style="font-size: 9px; opacity: 0.7;">(${label})</span>
                 </span>
             </div>
         `;
+
+        const SPARKLINE_MAP = {
+            'sparkline-gold': { asset: 'gold', title: 'Gold Spot (XAU/USD)', unit: '$' },
+            'sparkline-usd-egp': { asset: 'usd_egp', title: 'USD → EGP', unit: 'EGP' },
+            'sparkline-eur-egp': { asset: 'eur_egp', title: 'EUR → EGP', unit: 'EGP' },
+            'sparkline-eur-usd': { asset: 'eur_usd', title: 'EUR → USD', unit: '$' },
+            'sparkline-mint-20g': { asset: 'mint_20g', title: '20g Austrian Mint Bar', unit: '€' },
+            'sparkline-philoro-20g': { asset: 'philoro_20g', title: '20g philoro Origin Bar', unit: '€' },
+            'sparkline-mint-phil': { asset: 'mint_phil', title: '1 oz Philharmoniker', unit: '€' },
+            'sparkline-gold-egp': { asset: 'gold_egp', title: 'Gold 1g 24K (EGP)', unit: 'EGP' }
+        };
+        if (SPARKLINE_MAP[containerId]) {
+            container.title = 'Click to open interactive 7D / 30D / 90D / 1Y chart';
+            container.onclick = (e) => {
+                e.stopPropagation();
+                const cfg = SPARKLINE_MAP[containerId];
+                openHistoryChart(cfg.asset, cfg.title, cfg.unit);
+            };
+        }
+    }
+
+    // --- 📈 Interactive Historical Chart Modal ---
+    let currentHistoryAsset = 'gold';
+    let currentHistoryTitle = 'Gold Spot (XAU/USD)';
+    let currentHistoryUnit = '$';
+    let currentHistoryPeriod = '30d';
+
+    function openHistoryChart(asset, title, unit) {
+        currentHistoryAsset = asset;
+        currentHistoryTitle = title;
+        currentHistoryUnit = unit;
+        document.getElementById('historyModalTitle').innerHTML = `<i class="fas fa-chart-line" style="color: var(--accent-gold);"></i> ${escapeHtml(title)}`;
+        document.getElementById('historyModalBackdrop').classList.add('open');
+        loadHistoryChart(currentHistoryPeriod);
+    }
+
+    function closeHistoryModal() {
+        document.getElementById('historyModalBackdrop').classList.remove('open');
+    }
+
+    function handleHistoryBackdropClick(e) {
+        if (e.target === document.getElementById('historyModalBackdrop')) closeHistoryModal();
+    }
+
+    function switchHistoryPeriod(period) {
+        currentHistoryPeriod = period;
+        document.querySelectorAll('.history-period-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.period === period);
+        });
+        loadHistoryChart(period);
+    }
+
+    async function loadHistoryChart(period) {
+        const container = document.getElementById('historyChartContainer');
+        const tooltip = document.getElementById('historyTooltip');
+        if (tooltip) tooltip.style.display = 'none';
+        container.innerHTML = '<span style="color: var(--text-muted);">Loading historical data...</span>';
+
+        try {
+            const resp = await fetch(`/api/history?asset=${encodeURIComponent(currentHistoryAsset)}&period=${encodeURIComponent(period)}`);
+            const data = await resp.json();
+            if (!data.values || data.values.length < 2) {
+                container.innerHTML = '<span style="color: var(--text-muted);">No historical data available.</span>';
+                return;
+            }
+
+            const dec = ['usd_egp', 'eur_egp', 'eur_usd'].includes(currentHistoryAsset) ? 4 : 2;
+            const fmt = (v) => currentHistoryUnit === 'EGP' ? `${formatNumber(v, dec)} EGP` : `${currentHistoryUnit}${formatNumber(v, dec)}`;
+            document.getElementById('histStatLow').textContent = fmt(data.min);
+            document.getElementById('histStatHigh').textContent = fmt(data.max);
+            document.getElementById('histStatAvg').textContent = fmt(data.avg);
+
+            const chg = data.change_pct || 0;
+            const chgEl = document.getElementById('histStatChg');
+            chgEl.textContent = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+            chgEl.className = `portfolio-stat-val ${chg >= 0 ? 'pnl-pos' : 'pnl-neg'}`;
+
+            renderInteractiveHistorySvg(data.labels, data.values, dec);
+        } catch (err) {
+            console.error('History chart error:', err);
+            container.innerHTML = '<span style="color: var(--accent-red);">Failed to load chart.</span>';
+        }
+    }
+
+    function renderInteractiveHistorySvg(labels, values, dec = 2) {
+        const container = document.getElementById('historyChartContainer');
+        const tooltip = document.getElementById('historyTooltip');
+        const w = 460, h = 190, padL = 8, padR = 8, padT = 14, padB = 22;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = max - min || 1;
+        const isUp = values[values.length - 1] >= values[0];
+        const stroke = isUp ? '#10b981' : '#ef4444';
+        const fill = isUp ? 'rgba(16, 185, 129, 0.16)' : 'rgba(239, 68, 68, 0.16)';
+
+        const coords = values.map((v, i) => {
+            const x = padL + (i / (values.length - 1)) * (w - padL - padR);
+            const y = padT + (1 - (v - min) / range) * (h - padT - padB);
+            return { x, y, v, label: labels[i] };
+        });
+
+        const polyPts = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+        const areaPts = `${padL},${h - padB} ${polyPts} ${w - padR},${h - padB}`;
+
+        container.innerHTML = `
+            <svg id="historySvg" viewBox="0 0 ${w} ${h}" style="width: 100%; height: 190px; display: block; touch-action: none;">
+                <polygon fill="${fill}" points="${areaPts}" />
+                <polyline fill="none" stroke="${stroke}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="${polyPts}" />
+                <line id="histCrosshair" x1="0" y1="${padT}" x2="0" y2="${h - padB}" stroke="var(--text-muted)" stroke-dasharray="3,3" stroke-width="1" style="display:none;" />
+                <circle id="histDot" cx="0" cy="0" r="4" fill="${stroke}" stroke="#fff" stroke-width="1.5" style="display:none;" />
+                <text x="${padL}" y="${h - 5}" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono, monospace">${labels[0]}</text>
+                <text x="${w - padR}" y="${h - 5}" text-anchor="end" fill="var(--text-muted)" font-size="10" font-family="JetBrains Mono, monospace">${labels[labels.length - 1]}</text>
+            </svg>
+        `;
+
+        const svg = document.getElementById('historySvg');
+        const cross = document.getElementById('histCrosshair');
+        const dot = document.getElementById('histDot');
+
+        function handleMove(clientX) {
+            const rect = svg.getBoundingClientRect();
+            const relX = ((clientX - rect.left) / rect.width) * w;
+            let closest = coords[0];
+            let bestDist = Infinity;
+            coords.forEach(c => {
+                const d = Math.abs(c.x - relX);
+                if (d < bestDist) { bestDist = d; closest = c; }
+            });
+            cross.setAttribute('x1', closest.x);
+            cross.setAttribute('x2', closest.x);
+            cross.style.display = 'block';
+            dot.setAttribute('cx', closest.x);
+            dot.setAttribute('cy', closest.y);
+            dot.style.display = 'block';
+            const valStr = currentHistoryUnit === 'EGP' ? `${formatNumber(closest.v, dec)} EGP` : `${currentHistoryUnit}${formatNumber(closest.v, dec)}`;
+            tooltip.textContent = `${closest.label} · ${valStr}`;
+            tooltip.style.display = 'block';
+        }
+
+        svg.addEventListener('mousemove', e => handleMove(e.clientX));
+        svg.addEventListener('touchmove', e => { if (e.touches[0]) handleMove(e.touches[0].clientX); });
+        svg.addEventListener('mouseleave', () => {
+            cross.style.display = 'none';
+            dot.style.display = 'none';
+            tooltip.style.display = 'none';
+        });
+    }
+
+    // --- 🔔 Price Alerts Manager ---
+    const ALERTS_STORAGE_KEY = 'finance_dashboard_alerts';
+    const ALERT_ASSET_META = {
+        gold: { label: 'Gold Spot ($/oz)', cardId: 'card-gold-spot', unit: '$' },
+        gold_egp: { label: 'Gold 1g 24K (EGP)', cardId: 'card-gold-egp', unit: 'EGP' },
+        philoro_20g: { label: '20g philoro Origin (€)', cardId: 'card-philoro-20g', unit: '€' },
+        mint_20g: { label: '20g Austrian Mint (€)', cardId: 'card-mint-20g', unit: '€' },
+        mint_phil: { label: '1 oz Philharmoniker (€)', cardId: 'card-mint-phil', unit: '€' },
+        usd_egp: { label: 'USD → EGP', cardId: 'card-usd-egp', unit: 'EGP' },
+        eur_egp: { label: 'EUR → EGP', cardId: 'card-eur-egp', unit: 'EGP' },
+        eur_usd: { label: 'EUR → USD', cardId: 'card-eur-usd', unit: '$' }
+    };
+    const _notifiedAlertIds = new Set();
+
+    function getAlerts() {
+        try {
+            const raw = localStorage.getItem(ALERTS_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveAlerts(alerts) {
+        localStorage.setItem(ALERTS_STORAGE_KEY, JSON.stringify(alerts));
+    }
+
+    function getLiveAlertPrice(asset, data) {
+        if (!data) return null;
+        const rates = data.exchange_rates || {};
+        const gold = data.gold_price || {};
+        if (asset === 'gold') return gold.usd_oz ? parseFloat(gold.usd_oz) : null;
+        if (asset === 'gold_egp') return (gold.usd_gram && rates.usd_egp) ? gold.usd_gram * rates.usd_egp : null;
+        if (asset === 'philoro_20g') return (data.philoro_20g_bar && data.philoro_20g_bar.price) ? parseFloat(data.philoro_20g_bar.price) : null;
+        if (asset === 'mint_20g') return (data.mint_20g_bar && data.mint_20g_bar.price) ? parseFloat(data.mint_20g_bar.price) : null;
+        if (asset === 'mint_phil') return (data.mint_philharmoniker && data.mint_philharmoniker.price) ? parseFloat(data.mint_philharmoniker.price) : null;
+        if (asset === 'usd_egp') return rates.usd_egp ? parseFloat(rates.usd_egp) : null;
+        if (asset === 'eur_egp') return rates.eur_egp ? parseFloat(rates.eur_egp) : null;
+        if (asset === 'eur_usd') return (rates.eur_egp && rates.usd_egp) ? (rates.eur_egp / rates.usd_egp) : null;
+        return null;
+    }
+
+    function evaluatePriceAlerts(data = lastData) {
+        const alerts = getAlerts();
+        // Clear previous card highlights
+        document.querySelectorAll('.dash-card.card-alert-triggered').forEach(el => el.classList.remove('card-alert-triggered'));
+        document.querySelectorAll('.alert-hit-pill').forEach(el => el.remove());
+
+        let triggeredCount = 0;
+        const triggeredCards = new Set();
+
+        alerts.forEach(alert => {
+            const live = getLiveAlertPrice(alert.asset, data);
+            if (live == null) return;
+            const hit = alert.cond === 'above' ? (live >= alert.target) : (live <= alert.target);
+            if (hit) {
+                triggeredCount++;
+                const meta = ALERT_ASSET_META[alert.asset];
+                if (meta && !triggeredCards.has(meta.cardId)) {
+                    triggeredCards.add(meta.cardId);
+                    const cardEl = document.getElementById(meta.cardId);
+                    if (cardEl) {
+                        cardEl.classList.add('card-alert-triggered');
+                        const titleGroup = cardEl.querySelector('.card-title-group');
+                        if (titleGroup) {
+                            const pill = document.createElement('span');
+                            pill.className = 'alert-hit-pill';
+                            pill.innerHTML = `<i class="fas fa-bell"></i> Alert Hit (${alert.cond === 'above' ? '≥' : '≤'} ${alert.target})`;
+                            titleGroup.appendChild(pill);
+                        }
+                    }
+                }
+                if (!_notifiedAlertIds.has(alert.id)) {
+                    _notifiedAlertIds.add(alert.id);
+                    const msg = `${meta ? meta.label : alert.asset} hit ${live.toFixed(2)} (${alert.cond === 'above' ? '≥' : '≤'} ${alert.target})`;
+                    showToast(`🔔 ${msg}`);
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('Finance Radar Price Alert', { body: msg });
+                    }
+                }
+            }
+        });
+
+        const badge = document.getElementById('alertsCountBadge');
+        if (badge) {
+            if (alerts.length > 0) {
+                badge.style.display = 'inline-block';
+                badge.textContent = triggeredCount > 0 ? `${triggeredCount}!` : `${alerts.length}`;
+                badge.style.background = triggeredCount > 0 ? 'var(--accent-gold)' : '';
+                badge.style.color = triggeredCount > 0 ? '#000' : '';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        renderAlertsList(data);
+    }
+
+    function renderAlertsList(data = lastData) {
+        const container = document.getElementById('alertsListContainer');
+        if (!container) return;
+        const alerts = getAlerts();
+        if (alerts.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 18px; color: var(--text-muted); font-size: 12px;">No price alerts set yet.</div>`;
+            return;
+        }
+        container.innerHTML = alerts.map((a, idx) => {
+            const meta = ALERT_ASSET_META[a.asset] || { label: a.asset, unit: '' };
+            const live = getLiveAlertPrice(a.asset, data);
+            const hit = live != null && (a.cond === 'above' ? live >= a.target : live <= a.target);
+            const liveStr = live != null ? live.toFixed(['usd_egp','eur_egp','eur_usd'].includes(a.asset) ? 4 : 2) : '--';
+            return `
+                <div class="portfolio-item">
+                    <div class="portfolio-item-info">
+                        <div class="portfolio-item-title">${meta.label} ${a.cond === 'above' ? '≥' : '≤'} ${a.target}</div>
+                        <div class="portfolio-item-sub">Current: ${liveStr}</div>
+                    </div>
+                    <span class="alert-status-pill ${hit ? 'alert-status-hit' : 'alert-status-watching'}">${hit ? 'Triggered' : 'Watching'}</span>
+                    <button class="portfolio-del-btn" onclick="removePriceAlert(${idx})" title="Delete alert">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function openAlertsModal() {
+        updateNotifBtnState();
+        renderAlertsList(lastData);
+        document.getElementById('alertsModalBackdrop').classList.add('open');
+    }
+
+    function closeAlertsModal() {
+        document.getElementById('alertsModalBackdrop').classList.remove('open');
+    }
+
+    function handleAlertsBackdropClick(e) {
+        if (e.target === document.getElementById('alertsModalBackdrop')) closeAlertsModal();
+    }
+
+    function addPriceAlert() {
+        const asset = document.getElementById('alertAssetSelect').value;
+        const cond = document.getElementById('alertCondSelect').value;
+        const target = parseFloat(document.getElementById('alertTargetInput').value);
+        if (!target || target <= 0) {
+            showToast('Please enter a valid target price');
+            return;
+        }
+        const alerts = getAlerts();
+        alerts.push({ id: `${asset}_${cond}_${target}_${Date.now()}`, asset, cond, target });
+        saveAlerts(alerts);
+        document.getElementById('alertTargetInput').value = '';
+        evaluatePriceAlerts(lastData);
+        showToast('Price alert saved!');
+    }
+
+    function removePriceAlert(index) {
+        const alerts = getAlerts();
+        alerts.splice(index, 1);
+        saveAlerts(alerts);
+        evaluatePriceAlerts(lastData);
+        showToast('Alert removed');
+    }
+
+    function updateNotifBtnState() {
+        const btn = document.getElementById('notifPermBtn');
+        if (!btn) return;
+        if (!('Notification' in window)) {
+            btn.textContent = 'Unsupported';
+            btn.disabled = true;
+        } else if (Notification.permission === 'granted') {
+            btn.textContent = 'Enabled ✓';
+            btn.style.color = 'var(--accent-green)';
+            btn.style.borderColor = 'var(--accent-green)';
+        } else if (Notification.permission === 'denied') {
+            btn.textContent = 'Blocked';
+        } else {
+            btn.textContent = 'Enable';
+        }
+    }
+
+    function requestNotifPermission() {
+        if (!('Notification' in window)) return;
+        Notification.requestPermission().then(() => {
+            updateNotifBtnState();
+            if (Notification.permission === 'granted') {
+                showToast('Browser notifications enabled!');
+            }
+        });
     }
 
     // --- 🧮 Interactive Calculator Logic ---
@@ -3303,6 +3853,7 @@
         applyCardSizes();
         initScrollMode();
         renderPortfolio();
+        evaluatePriceAlerts();
         fetchData();
     });
 
@@ -3312,6 +3863,8 @@
             closeCalculator();
             closeCardsModal();
             closePortfolioModal();
+            closeHistoryModal();
+            closeAlertsModal();
         }
     });
 

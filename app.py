@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, jsonify, render_template, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_from_directory
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
@@ -528,6 +528,100 @@ def fetch_sparklines():
     return history
 
 
+def fetch_history(asset="gold", period="30d"):
+    """Fetch historical daily series (7d, 30d, 90d, 1y) for interactive charts."""
+    period_map = {"7d": "7d", "30d": "1mo", "90d": "3mo", "1y": "1y"}
+    yf_range = period_map.get(period, "1mo")
+    cache_key = f"history_{asset}_{period}"
+    cached = _get_cached(cache_key)
+    if cached:
+        return cached
+
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
+
+    def get_series(symbol):
+        r = requests.get(
+            f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range={yf_range}",
+            headers=headers,
+            timeout=6,
+        )
+        if r.status_code != 200:
+            return {}
+        res = r.json()["chart"]["result"][0]
+        timestamps = res.get("timestamp", [])
+        closes = res["indicators"]["quote"][0].get("close", [])
+        series = {}
+        for ts, val in zip(timestamps, closes):
+            if val is not None:
+                date_str = datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d")
+                series[date_str] = float(val)
+        return series
+
+    try:
+        dates = []
+        values = []
+
+        if asset == "gold":
+            s = get_series("GC=F")
+            dates = sorted(s.keys())
+            values = [round(s[d], 2) for d in dates]
+        elif asset == "usd_egp":
+            s = get_series("USDEGP=X")
+            dates = sorted(s.keys())
+            values = [round(s[d], 4) for d in dates]
+        elif asset == "eur_egp":
+            s = get_series("EUREGP=X")
+            dates = sorted(s.keys())
+            values = [round(s[d], 4) for d in dates]
+        elif asset == "eur_usd":
+            s = get_series("EURUSD=X")
+            dates = sorted(s.keys())
+            values = [round(s[d], 4) for d in dates]
+        elif asset in ("mint_20g", "philoro_20g", "mint_phil"):
+            gold_s = get_series("GC=F")
+            fx_s = get_series("EURUSD=X")
+            last_fx = 1.08
+            for d in sorted(gold_s.keys()):
+                if d in fx_s and fx_s[d] > 0:
+                    last_fx = fx_s[d]
+                oz_eur = gold_s[d] / last_fx
+                val = oz_eur if asset == "mint_phil" else (oz_eur / 31.1035) * 20
+                dates.append(d)
+                values.append(round(val, 2))
+        elif asset == "gold_egp":
+            gold_s = get_series("GC=F")
+            usd_s = get_series("USDEGP=X")
+            last_usd = 50.0
+            if usd_s:
+                last_usd = list(usd_s.values())[0]
+            for d in sorted(gold_s.keys()):
+                if d in usd_s and usd_s[d] > 0:
+                    last_usd = usd_s[d]
+                dates.append(d)
+                values.append(round((gold_s[d] / 31.1035) * last_usd, 2))
+
+        if not values:
+            return {"asset": asset, "period": period, "labels": [], "values": []}
+
+        first_v, last_v = values[0], values[-1]
+        change_pct = ((last_v - first_v) / first_v * 100) if first_v else 0.0
+        payload = {
+            "asset": asset,
+            "period": period,
+            "labels": dates,
+            "values": values,
+            "min": min(values),
+            "max": max(values),
+            "avg": round(sum(values) / len(values), 4 if asset in ("usd_egp", "eur_egp", "eur_usd") else 2),
+            "change_pct": round(change_pct, 2),
+        }
+        _set_cached(cache_key, payload)
+        return payload
+    except Exception as e:
+        print(f"Error fetching history for {asset} ({period}): {e}")
+        return {"asset": asset, "period": period, "labels": [], "values": [], "error": str(e)}
+
+
 def fetch_all_data():
     """Fetch all data sources concurrently using threads."""
     results = {}
@@ -584,6 +678,13 @@ def api_refresh():
         _cache.clear()
     data = fetch_all_data()
     return jsonify(data)
+
+
+@app.route("/api/history")
+def api_history():
+    asset = request.args.get("asset", "gold")
+    period = request.args.get("period", "30d")
+    return jsonify(fetch_history(asset=asset, period=period))
 
 
 @app.route("/health")
