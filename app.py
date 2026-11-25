@@ -586,6 +586,12 @@ def api_refresh():
     return jsonify(data)
 
 
+@app.route("/health")
+def health():
+    """Lightweight health check for uptime monitors without triggering data scrapes."""
+    return jsonify({"status": "ok", "timestamp": datetime.now(timezone.utc).isoformat()})
+
+
 @app.route("/static/<path:filename>")
 def static_files(filename):
     return send_from_directory("static", filename)
