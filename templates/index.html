@@ -410,6 +410,40 @@
             transform: scale(1.1);
         }
 
+        .card-size-btn {
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .card-size-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            transform: scale(1.06);
+        }
+
+        .card-size-btn:active {
+            transform: scale(0.94);
+        }
+
+        .card-size-btn .size-tag {
+            font-size: 10px;
+            font-weight: 700;
+        }
+
         .dash-card.card-hidden {
             display: none !important;
         }
@@ -496,10 +530,27 @@
             color: var(--accent-gold);
         }
 
-        /* Gold Spot Wide Layout */
-        #card-gold-spot {
-            grid-column: span 12;
+        /* 📐 Card Width Sizes (1/3, 2/3, Full Width) */
+        .dash-card.card-size-1 {
+            grid-column: span 4 !important; /* 1/3 row */
         }
+
+        .dash-card.card-size-2 {
+            grid-column: span 8 !important; /* 2/3 row */
+        }
+
+        .dash-card.card-size-3 {
+            grid-column: span 12 !important; /* Full width row */
+        }
+
+        /* Default fallback spans */
+        #card-gold-spot { grid-column: span 12; }
+        #card-usd-egp { grid-column: span 4; }
+        #card-eur-egp { grid-column: span 4; }
+        #card-eur-usd { grid-column: span 4; }
+        #card-mint-20g { grid-column: span 4; }
+        #card-mint-phil { grid-column: span 4; }
+        #card-philoro-20g { grid-column: span 4; }
 
         .gold-grid {
             display: grid;
@@ -528,14 +579,6 @@
             font-size: 15px;
             font-weight: 700;
         }
-
-        /* Desktop Spans */
-        #card-usd-egp { grid-column: span 4; }
-        #card-eur-egp { grid-column: span 4; }
-        #card-eur-usd { grid-column: span 4; }
-        #card-mint-20g { grid-column: span 4; }
-        #card-mint-phil { grid-column: span 4; }
-        #card-philoro-20g { grid-column: span 4; }
 
         /* External Link */
         .card-link {
@@ -994,6 +1037,41 @@
             transform: translateX(18px);
         }
 
+        /* 🎛️ Width Segmented Control in Cards Manager */
+        .card-size-segmented {
+            display: inline-flex;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid var(--box-sub-border);
+            border-radius: 8px;
+            padding: 2px;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .card-size-opt {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.2;
+        }
+
+        .card-size-opt:hover {
+            color: var(--text-primary);
+        }
+
+        .card-size-opt.active {
+            background: var(--accent-gold);
+            color: #000;
+            font-weight: 700;
+        }
+
         /* Empty state when user hides all cards */
         .empty-cards-state {
             grid-column: span 12;
@@ -1076,9 +1154,9 @@
                 margin-bottom: 6px;
             }
 
-            /* 2-column Compact Dashboard Grid */
+            /* Mobile 12-column Grid (supports 1/3, 2/3, and Full width cards) */
             .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
+                grid-template-columns: repeat(12, 1fr) !important;
                 gap: 8px;
                 flex: none;
                 align-content: start;
@@ -1087,13 +1165,50 @@
             .dash-card {
                 padding: 10px 10px 8px;
                 border-radius: 10px;
-                grid-column: span 1 !important;
                 min-height: 0;
             }
 
-            /* Gold Spot card spans full width or fits top row */
-            #card-gold-spot {
-                grid-column: span 2 !important;
+            /* Responsive Sizes on Mobile */
+            .dash-card.card-size-1 {
+                grid-column: span 4 !important; /* 1/3 width */
+                padding: 8px 6px;
+            }
+
+            .dash-card.card-size-1 .card-icon {
+                width: 22px;
+                height: 22px;
+                font-size: 10px;
+                border-radius: 6px;
+            }
+
+            .dash-card.card-size-1 .card-title-group h3 {
+                font-size: 11px;
+            }
+
+            .dash-card.card-size-1 .card-title-group p {
+                display: none;
+            }
+
+            .dash-card.card-size-1 .card-main-val {
+                font-size: 14.5px;
+            }
+
+            .dash-card.card-size-1 .card-sub-box {
+                padding: 4px;
+            }
+
+            .dash-card.card-size-1 .sub-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1px;
+            }
+
+            .dash-card.card-size-2 {
+                grid-column: span 8 !important; /* 2/3 width */
+            }
+
+            .dash-card.card-size-3 {
+                grid-column: span 12 !important; /* Full width row */
             }
 
             .card-top {
@@ -1126,8 +1241,29 @@
                 height: 20px;
             }
 
+            .card-size-btn {
+                font-size: 9px;
+                padding: 1px 4px;
+            }
+
+            .card-size-btn .size-tag {
+                font-size: 9px;
+            }
+
             .card-top-right {
                 gap: 4px;
+            }
+
+            .cards-manager-item {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .cards-item-right {
+                width: 100%;
+                justify-content: space-between;
+                padding-top: 6px;
+                border-top: 1px dashed rgba(255, 255, 255, 0.06);
             }
 
             .card-main-val {
@@ -1271,6 +1407,10 @@
                 </div>
                 <div class="card-top-right">
                     <span class="card-badge badge-neutral" id="goldChangeBadge">--</span>
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-gold-spot')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-gold-spot">Full</span>
+                    </button>
                     <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
                     <button class="card-close-btn" onclick="hideCard(event, 'card-gold-spot')" title="Hide card" aria-label="Hide card">
                         <i class="fas fa-times"></i>
@@ -1331,6 +1471,10 @@
                     </div>
                 </div>
                 <div class="card-top-right">
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-usd-egp')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-usd-egp">1/3</span>
+                    </button>
                     <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
                     <button class="card-close-btn" onclick="hideCard(event, 'card-usd-egp')" title="Hide card" aria-label="Hide card">
                         <i class="fas fa-times"></i>
@@ -1368,6 +1512,10 @@
                     </div>
                 </div>
                 <div class="card-top-right">
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-eur-egp')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-eur-egp">1/3</span>
+                    </button>
                     <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
                     <button class="card-close-btn" onclick="hideCard(event, 'card-eur-egp')" title="Hide card" aria-label="Hide card">
                         <i class="fas fa-times"></i>
@@ -1405,6 +1553,10 @@
                     </div>
                 </div>
                 <div class="card-top-right">
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-eur-usd')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-eur-usd">1/3</span>
+                    </button>
                     <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
                     <button class="card-close-btn" onclick="hideCard(event, 'card-eur-usd')" title="Hide card" aria-label="Hide card">
                         <i class="fas fa-times"></i>
@@ -1442,6 +1594,10 @@
                     </div>
                 </div>
                 <div class="card-top-right">
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-mint-20g')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-mint-20g">1/3</span>
+                    </button>
                     <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
                     <button class="card-close-btn" onclick="hideCard(event, 'card-mint-20g')" title="Hide card" aria-label="Hide card">
                         <i class="fas fa-times"></i>
@@ -1482,6 +1638,10 @@
                     </div>
                 </div>
                 <div class="card-top-right">
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-mint-phil')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-mint-phil">1/3</span>
+                    </button>
                     <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
                     <button class="card-close-btn" onclick="hideCard(event, 'card-mint-phil')" title="Hide card" aria-label="Hide card">
                         <i class="fas fa-times"></i>
@@ -1522,6 +1682,10 @@
                     </div>
                 </div>
                 <div class="card-top-right">
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-philoro-20g')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-philoro-20g">1/3</span>
+                    </button>
                     <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
                     <button class="card-close-btn" onclick="hideCard(event, 'card-philoro-20g')" title="Hide card" aria-label="Hide card">
                         <i class="fas fa-times"></i>
@@ -1698,7 +1862,7 @@
         sortableInstance = new Sortable(grid, {
             animation: 200,
             handle: '.drag-handle, .dash-card',
-            filter: '.card-close-btn, .card-close-btn *, a.card-link',
+            filter: '.card-close-btn, .card-close-btn *, .card-size-btn, .card-size-btn *, a.card-link',
             preventOnFilter: false,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
@@ -1924,7 +2088,79 @@
         showToast('All 7 cards are now visible');
     }
 
+    // --- 📐 Card Width Sizes (1/3, 2/3, Full Row) ---
+    const CARD_SIZES_KEY = 'finance_dashboard_card_sizes';
+    const DEFAULT_CARD_SIZES = {
+        'card-gold-spot': 3, // Full width (span 12)
+        'card-usd-egp': 1,    // 1/3 row (span 4)
+        'card-eur-egp': 1,    // 1/3 row (span 4)
+        'card-eur-usd': 1,    // 1/3 row (span 4)
+        'card-mint-20g': 1,   // 1/3 row (span 4)
+        'card-philoro-20g': 1,// 1/3 row (span 4)
+        'card-mint-phil': 1   // 1/3 row (span 4)
+    };
+
+    function getCardSizes() {
+        try {
+            const raw = localStorage.getItem(CARD_SIZES_KEY);
+            return raw ? { ...DEFAULT_CARD_SIZES, ...JSON.parse(raw) } : { ...DEFAULT_CARD_SIZES };
+        } catch (e) {
+            return { ...DEFAULT_CARD_SIZES };
+        }
+    }
+
+    function saveCardSizes(sizes) {
+        localStorage.setItem(CARD_SIZES_KEY, JSON.stringify(sizes));
+    }
+
+    function applyCardSizes() {
+        const sizes = getCardSizes();
+        ALL_CARDS.forEach(card => {
+            const el = document.getElementById(card.id);
+            const tag = document.getElementById(`sizeTag_${card.id}`);
+            const size = sizes[card.id] || DEFAULT_CARD_SIZES[card.id] || 1;
+            
+            if (el) {
+                el.classList.remove('card-size-1', 'card-size-2', 'card-size-3');
+                el.classList.add(`card-size-${size}`);
+            }
+            if (tag) {
+                tag.textContent = size === 3 ? 'Full' : (size === 2 ? '2/3' : '1/3');
+            }
+        });
+    }
+
+    function setCardSize(cardId, size, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        const sizes = getCardSizes();
+        sizes[cardId] = Number(size);
+        saveCardSizes(sizes);
+        applyCardSizes();
+        renderCardsManagerList(getHiddenCards());
+        const label = size === 3 ? 'Full row (100%)' : (size === 2 ? '2/3 row' : '1/3 row');
+        const cardObj = ALL_CARDS.find(c => c.id === cardId);
+        showToast(`${cardObj ? cardObj.name : 'Card'} set to ${label}`);
+    }
+
+    function cycleCardSize(event, cardId) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        const sizes = getCardSizes();
+        let current = sizes[cardId] || DEFAULT_CARD_SIZES[cardId] || 1;
+        // cycle: 1 (1/3) -> 2 (2/3) -> 3 (Full) -> 1 (1/3)
+        let next = (current % 3) + 1;
+        setCardSize(cardId, next);
+    }
+
     function resetCardsToDefault() {
+        saveHiddenCards([]);
+        saveCardSizes(DEFAULT_CARD_SIZES);
+        applyCardSizes();
         showAllCards();
         resetCardOrder();
     }
@@ -1960,8 +2196,11 @@
         const container = document.getElementById('cardsSelectList');
         if (!container) return;
 
+        const sizes = getCardSizes();
+
         container.innerHTML = ALL_CARDS.map(card => {
             const isVisible = !hidden.includes(card.id);
+            const currentSize = sizes[card.id] || DEFAULT_CARD_SIZES[card.id] || 1;
             return `
                 <div class="cards-manager-item" onclick="handleCardRowClick('${card.id}')">
                     <div class="cards-item-left">
@@ -1973,10 +2212,17 @@
                             <p>${card.desc}</p>
                         </div>
                     </div>
-                    <label class="card-toggle-switch" onclick="event.stopPropagation()">
-                        <input type="checkbox" id="toggle_${card.id}" ${isVisible ? 'checked' : ''} onchange="toggleCardFromManager('${card.id}', this.checked)">
-                        <span class="card-toggle-slider"></span>
-                    </label>
+                    <div class="cards-item-right" style="display: flex; align-items: center; gap: 8px;" onclick="event.stopPropagation()">
+                        <div class="card-size-segmented" title="Set Card Width">
+                            <button type="button" class="card-size-opt ${currentSize === 1 ? 'active' : ''}" onclick="setCardSize('${card.id}', 1, event)">1/3</button>
+                            <button type="button" class="card-size-opt ${currentSize === 2 ? 'active' : ''}" onclick="setCardSize('${card.id}', 2, event)">2/3</button>
+                            <button type="button" class="card-size-opt ${currentSize === 3 ? 'active' : ''}" onclick="setCardSize('${card.id}', 3, event)">Full</button>
+                        </div>
+                        <label class="card-toggle-switch">
+                            <input type="checkbox" id="toggle_${card.id}" ${isVisible ? 'checked' : ''} onchange="toggleCardFromManager('${card.id}', this.checked)">
+                            <span class="card-toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
             `;
         }).join('');
@@ -2479,6 +2725,7 @@
         initTheme();
         initDragAndDrop();
         initCardVisibility();
+        applyCardSizes();
         initScrollMode();
         fetchData();
     });
