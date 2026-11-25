@@ -1072,6 +1072,171 @@
             font-weight: 700;
         }
 
+        /* --- 💼 Portfolio Card & Modal --- */
+        .card-manage-btn {
+            background: var(--accent-gold-dim);
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            color: var(--accent-gold);
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+        .card-manage-btn:hover {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        .pnl-pos { color: var(--accent-green) !important; }
+        .pnl-neg { color: var(--accent-red) !important; }
+
+        .portfolio-summary-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .portfolio-stat-box {
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            text-align: center;
+        }
+        .portfolio-stat-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 4px;
+        }
+        .portfolio-stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .portfolio-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .portfolio-form-grid .full-span {
+            grid-column: span 2;
+        }
+        .portfolio-field-label {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+            font-weight: 600;
+        }
+        .portfolio-input {
+            width: 100%;
+            background: var(--box-sub-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .portfolio-input:focus {
+            border-color: var(--accent-gold);
+        }
+        .portfolio-add-btn {
+            width: 100%;
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            transition: opacity 0.15s;
+        }
+        .portfolio-add-btn:hover { opacity: 0.9; }
+
+        .portfolio-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+        .portfolio-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+        }
+        .portfolio-item-info {
+            min-width: 0;
+            flex: 1;
+        }
+        .portfolio-item-title {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .portfolio-item-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .portfolio-item-right {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .portfolio-item-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+        .portfolio-item-pnl {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10.5px;
+            font-weight: 600;
+        }
+        .portfolio-del-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .portfolio-del-btn:hover {
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
         /* Empty state when user hides all cards */
         .empty-cards-state {
             grid-column: span 12;
@@ -1354,6 +1519,10 @@
             </div>
         </div>
         <div class="header-actions">
+            <button class="btn-action" id="portfolioOpenBtn" onclick="openPortfolioModal()" title="My Bullion Portfolio & P&L" style="border-color: var(--accent-green); color: var(--accent-green); background: rgba(16, 185, 129, 0.1);">
+                <i class="fas fa-wallet"></i>
+                <span>Portfolio</span>
+            </button>
             <button class="btn-action" id="calcOpenBtn" onclick="openCalculator()" title="Gold & Currency Calculator" style="border-color: var(--accent-gold); color: var(--accent-gold); background: var(--accent-gold-dim);">
                 <i class="fas fa-calculator"></i>
                 <span>Calc</span>
@@ -1361,7 +1530,7 @@
             <button class="btn-action" id="cardsManagerBtn" onclick="openCardsModal()" title="Manage Visible Cards">
                 <i class="fas fa-layer-group"></i>
                 <span>Cards</span>
-                <span class="cards-count-badge" id="cardsVisibleCount">7/7</span>
+                <span class="cards-count-badge" id="cardsVisibleCount">9/9</span>
             </button>
             <button class="btn-action" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Light / Dark Mode">
                 <i class="fas fa-sun" id="themeIcon"></i>
@@ -1713,6 +1882,98 @@
             </a>
         </div>
 
+        <!-- 8. Dedicated Gold in EGP Card (24K / 21K / 18K) -->
+        <div class="dash-card card-gold" id="card-gold-egp" data-id="card-gold-egp">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-gold">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>Gold in EGP (1g)</h3>
+                        <p>24K · 21K · 18K Spot EGP</p>
+                    </div>
+                </div>
+                <div class="card-top-right">
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-gold-egp')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-gold-egp">1/3</span>
+                    </button>
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-gold-egp')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="card-main-val" id="gold24kEgpPrice">
+                    <span class="skeleton sk-val"></span>
+                </div>
+            </div>
+            <div class="sparkline-box" id="sparkline-gold-egp"></div>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">21K (1g):</span>
+                    <span class="sub-val gold" id="gold21kEgpVal">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">18K (1g):</span>
+                    <span class="sub-val" id="gold18kEgpVal">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">Gold Pound (8g 21K):</span>
+                    <span class="sub-val" id="goldPoundEgpVal">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. My Bullion Portfolio & P&L Card -->
+        <div class="dash-card card-green" id="card-portfolio" data-id="card-portfolio">
+            <div class="card-top">
+                <div class="card-top-left">
+                    <div class="card-icon icon-green">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="card-title-group">
+                        <h3>My Bullion Portfolio</h3>
+                        <p id="portfolioCardSub">0 holdings · Live valuation</p>
+                    </div>
+                </div>
+                <div class="card-top-right">
+                    <button class="card-manage-btn" onclick="openPortfolioModal(event)" title="Add or edit holdings">
+                        <i class="fas fa-plus"></i> Manage
+                    </button>
+                    <button class="card-size-btn" onclick="cycleCardSize(event, 'card-portfolio')" title="Card width: 1/3, 2/3, Full" aria-label="Resize card">
+                        <i class="fas fa-arrows-alt-h" style="font-size: 8px; opacity: 0.65;"></i>
+                        <span class="size-tag" id="sizeTag_card-portfolio">2/3</span>
+                    </button>
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-portfolio')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="card-main-val" id="portfolioTotalEur">
+                    <span class="curr">€</span> 0.00
+                </div>
+            </div>
+            <div class="card-sub-box">
+                <div class="sub-row">
+                    <span class="sub-label">Total Weight:</span>
+                    <span class="sub-val gold" id="portfolioTotalGrams">0.00g</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">In EGP / USD:</span>
+                    <span class="sub-val" id="portfolioTotalEgpUsd">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">Unrealized P&amp;L:</span>
+                    <span class="sub-val" id="portfolioPnlVal">Tap Manage to add</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Empty state when all cards hidden -->
         <div class="empty-cards-state" id="emptyCardsState" style="display: none;">
             <i class="fas fa-eye-slash" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
@@ -1837,12 +2098,72 @@
     </div>
 </div>
 
+<!-- 💼 Bullion Portfolio & P&L Modal -->
+<div class="calc-backdrop" id="portfolioModalBackdrop" onclick="handlePortfolioBackdropClick(event)">
+    <div class="calc-sheet" id="portfolioSheet" style="max-width: 480px;">
+        <div class="calc-header">
+            <h3><i class="fas fa-wallet" style="color: var(--accent-green);"></i> My Bullion Portfolio</h3>
+            <button class="btn-close-calc" onclick="closePortfolioModal()" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="portfolio-summary-bar">
+            <div class="portfolio-stat-box">
+                <div class="portfolio-stat-label">Value (EUR)</div>
+                <div class="portfolio-stat-val" id="portModalEur">€0.00</div>
+            </div>
+            <div class="portfolio-stat-box">
+                <div class="portfolio-stat-label">Value (EGP)</div>
+                <div class="portfolio-stat-val" id="portModalEgp">0 EGP</div>
+            </div>
+            <div class="portfolio-stat-box">
+                <div class="portfolio-stat-label">Total P&amp;L</div>
+                <div class="portfolio-stat-val" id="portModalPnl">--</div>
+            </div>
+        </div>
+
+        <div class="calc-chips-title">Add Gold Holding</div>
+        <div class="portfolio-form-grid">
+            <div class="full-span">
+                <label class="portfolio-field-label" for="portAssetSelect">Product / Type</label>
+                <select class="calc-select" id="portAssetSelect" style="width: 100%;">
+                    <option value="philoro_20g">20g philoro Origin Bar (20g)</option>
+                    <option value="mint_20g">20g Austrian Mint Bar (20g)</option>
+                    <option value="mint_phil">1 oz Philharmoniker (31.10g)</option>
+                    <option value="spot_gram">Fine Gold (Custom Grams)</option>
+                </select>
+            </div>
+            <div>
+                <label class="portfolio-field-label" for="portQtyInput">Quantity / Grams</label>
+                <input type="number" step="any" min="0.01" class="portfolio-input" id="portQtyInput" value="1" placeholder="1">
+            </div>
+            <div>
+                <label class="portfolio-field-label" for="portCostInput">Total Paid (€, optional)</label>
+                <input type="number" step="any" min="0" class="portfolio-input" id="portCostInput" placeholder="e.g. 2150">
+            </div>
+            <div class="full-span">
+                <label class="portfolio-field-label" for="portNoteInput">Note (optional)</label>
+                <input type="text" class="portfolio-input" id="portNoteInput" placeholder="e.g. Bought Nov 2026" style="font-family: inherit;">
+            </div>
+        </div>
+        <button class="portfolio-add-btn" onclick="addPortfolioItem()">
+            <i class="fas fa-plus-circle"></i> Add to Portfolio
+        </button>
+
+        <div class="calc-chips-title">Your Holdings</div>
+        <div class="portfolio-list" id="portfolioItemsList">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+</div>
+
 <script>
     const AUTO_REFRESH_INTERVAL = 300; // 5 minutes
     const ORDER_STORAGE_KEY = 'finance_dashboard_card_order';
     const SCROLL_MODE_KEY = 'finance_dashboard_scroll_mode';
     const THEME_STORAGE_KEY = 'finance_dashboard_theme';
-    const CURRENT_LAYOUT_VERSION = 'v2_philoro_7cards';
+    const CURRENT_LAYOUT_VERSION = 'v3_egp_portfolio_9cards';
     const LAYOUT_VERSION_KEY = 'finance_dashboard_layout_version';
     
     let autoRefreshTimer = null;
@@ -1862,7 +2183,7 @@
         sortableInstance = new Sortable(grid, {
             animation: 200,
             handle: '.drag-handle, .dash-card',
-            filter: '.card-close-btn, .card-close-btn *, .card-size-btn, .card-size-btn *, a.card-link',
+            filter: '.card-close-btn, .card-close-btn *, .card-size-btn, .card-size-btn *, .card-manage-btn, .card-manage-btn *, a.card-link',
             preventOnFilter: false,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
@@ -1933,7 +2254,9 @@
             'card-eur-usd',
             'card-mint-20g',
             'card-philoro-20g',
-            'card-mint-phil'
+            'card-mint-phil',
+            'card-gold-egp',
+            'card-portfolio'
         ];
         const grid = document.getElementById('dashboardGrid');
         defaultOrder.forEach(id => {
@@ -1995,6 +2318,20 @@
             desc: 'Münze Österreich 1 oz Gold Coin (999.9)',
             icon: 'fas fa-compact-disc',
             iconClass: 'icon-gold'
+        },
+        {
+            id: 'card-gold-egp',
+            name: 'Gold in EGP (24K/21K/18K)',
+            desc: '1g Gold in EGP across 24K, 21K, 18K & Gold Pound',
+            icon: 'fas fa-coins',
+            iconClass: 'icon-gold'
+        },
+        {
+            id: 'card-portfolio',
+            name: 'My Bullion Portfolio',
+            desc: 'Track holdings, live value & unrealized P&L',
+            icon: 'fas fa-wallet',
+            iconClass: 'icon-green'
         }
     ];
 
@@ -2085,7 +2422,7 @@
             }
         });
         updateCardsManagerUI();
-        showToast('All 7 cards are now visible');
+        showToast(`All ${ALL_CARDS.length} cards are now visible`);
     }
 
     // --- 📐 Card Width Sizes (1/3, 2/3, Full Row) ---
@@ -2097,7 +2434,9 @@
         'card-eur-usd': 1,    // 1/3 row (span 4)
         'card-mint-20g': 1,   // 1/3 row (span 4)
         'card-philoro-20g': 1,// 1/3 row (span 4)
-        'card-mint-phil': 1   // 1/3 row (span 4)
+        'card-mint-phil': 1,  // 1/3 row (span 4)
+        'card-gold-egp': 1,   // 1/3 row (span 4)
+        'card-portfolio': 2   // 2/3 row (span 8)
     };
 
     function getCardSizes() {
@@ -2491,6 +2830,23 @@
             }
         }
 
+        // 5. Dedicated Gold in EGP Card (24K / 21K / 18K / Gold Pound)
+        if (gold.usd_gram && usdEgp) {
+            const p24 = gold.usd_gram * usdEgp;
+            const p21 = p24 * (21 / 24);
+            const p18 = p24 * (18 / 24);
+            const pPound = p21 * 8;
+
+            const el24 = document.getElementById('gold24kEgpPrice');
+            if (el24) el24.innerHTML = `${formatPrice(p24)} <span class="curr">EGP</span>`;
+            const el21 = document.getElementById('gold21kEgpVal');
+            if (el21) el21.textContent = formatPrice(p21) + ' EGP';
+            const el18 = document.getElementById('gold18kEgpVal');
+            if (el18) el18.textContent = formatPrice(p18) + ' EGP';
+            const elPound = document.getElementById('goldPoundEgpVal');
+            if (elPound) elPound.textContent = formatPrice(pPound) + ' EGP';
+        }
+
         document.getElementById('updateText').textContent = timeAgo(data.fetched_at);
 
         // Update Sparklines
@@ -2498,8 +2854,217 @@
             updateAllSparklines(data.sparklines, data);
         }
 
+        // Render Portfolio with live data
+        renderPortfolio(data);
+
         // Recalculate if calculator is initialized
         calculate();
+    }
+
+    // --- 💼 Bullion Portfolio & P&L Manager ---
+    const PORTFOLIO_STORAGE_KEY = 'finance_dashboard_portfolio';
+    const PORTFOLIO_ASSETS = {
+        philoro_20g: { label: '20g philoro Origin Bar', grams: 20 },
+        mint_20g: { label: '20g Austrian Mint Bar', grams: 20 },
+        mint_phil: { label: '1 oz Philharmoniker', grams: 31.1035 },
+        spot_gram: { label: 'Fine Gold (grams)', grams: 1 }
+    };
+
+    function getPortfolio() {
+        try {
+            const raw = localStorage.getItem(PORTFOLIO_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function savePortfolio(items) {
+        localStorage.setItem(PORTFOLIO_STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function getAssetUnitEur(assetKey, data) {
+        if (!data) return 0;
+        const rates = data.exchange_rates || {};
+        const gold = data.gold_price || {};
+        const eurUsd = (rates.eur_egp && rates.usd_egp) ? (rates.eur_egp / rates.usd_egp) : 1.08;
+        const spotEurGram = gold.eur_gram || (gold.usd_gram ? gold.usd_gram / eurUsd : 0);
+
+        if (assetKey === 'philoro_20g') {
+            return parseFloat((data.philoro_20g_bar && data.philoro_20g_bar.price) || (spotEurGram * 20) || 0);
+        }
+        if (assetKey === 'mint_20g') {
+            return parseFloat((data.mint_20g_bar && data.mint_20g_bar.price) || (spotEurGram * 20) || 0);
+        }
+        if (assetKey === 'mint_phil') {
+            return parseFloat((data.mint_philharmoniker && data.mint_philharmoniker.price) || (spotEurGram * 31.1035) || 0);
+        }
+        if (assetKey === 'spot_gram') {
+            return parseFloat(spotEurGram || 0);
+        }
+        return 0;
+    }
+
+    function renderPortfolio(data = lastData) {
+        const items = getPortfolio();
+        const rates = (data && data.exchange_rates) || {};
+        const eurEgp = rates.eur_egp || 0;
+        const eurUsd = (rates.eur_egp && rates.usd_egp) ? (rates.eur_egp / rates.usd_egp) : 0;
+
+        let totalEur = 0;
+        let totalGrams = 0;
+        let totalCostEur = 0;
+        let hasCostBasis = false;
+
+        items.forEach(item => {
+            const meta = PORTFOLIO_ASSETS[item.asset] || PORTFOLIO_ASSETS.spot_gram;
+            const unitEur = getAssetUnitEur(item.asset, data);
+            const qty = parseFloat(item.qty) || 0;
+            totalEur += unitEur * qty;
+            totalGrams += meta.grams * qty;
+            if (item.cost && parseFloat(item.cost) > 0) {
+                totalCostEur += parseFloat(item.cost);
+                hasCostBasis = true;
+            }
+        });
+
+        const totalEgp = eurEgp ? totalEur * eurEgp : 0;
+        const totalUsd = eurUsd ? totalEur * eurUsd : 0;
+
+        const cardSub = document.getElementById('portfolioCardSub');
+        if (cardSub) {
+            cardSub.textContent = `${items.length} ${items.length === 1 ? 'holding' : 'holdings'} · Live valuation`;
+        }
+
+        const cardEur = document.getElementById('portfolioTotalEur');
+        if (cardEur) {
+            cardEur.innerHTML = `<span class="curr">€</span> ${formatPrice(totalEur)}`;
+        }
+
+        const cardGrams = document.getElementById('portfolioTotalGrams');
+        if (cardGrams) {
+            cardGrams.textContent = `${formatNumber(totalGrams, 2)}g Fine Gold`;
+        }
+
+        const cardEgpUsd = document.getElementById('portfolioTotalEgpUsd');
+        if (cardEgpUsd) {
+            cardEgpUsd.textContent = items.length === 0
+                ? '--'
+                : `${eurEgp ? formatPrice(totalEgp) + ' EGP' : '--'} · ${eurUsd ? '$' + formatPrice(totalUsd) : '--'}`;
+        }
+
+        let pnlText = 'Tap Manage to add';
+        let pnlClass = '';
+        if (items.length > 0 && !hasCostBasis) {
+            pnlText = 'No cost basis set';
+        } else if (items.length > 0 && hasCostBasis && totalEur > 0) {
+            const pnl = totalEur - totalCostEur;
+            const pnlPct = totalCostEur > 0 ? (pnl / totalCostEur) * 100 : 0;
+            const sign = pnl >= 0 ? '+' : '';
+            pnlText = `${sign}€${formatPrice(pnl)} (${sign}${pnlPct.toFixed(1)}%)`;
+            pnlClass = pnl >= 0 ? 'pnl-pos' : 'pnl-neg';
+        }
+
+        const cardPnl = document.getElementById('portfolioPnlVal');
+        if (cardPnl) {
+            cardPnl.textContent = pnlText;
+            cardPnl.className = `sub-val ${pnlClass}`;
+        }
+
+        // Update Modal summary & list if present
+        const modalEur = document.getElementById('portModalEur');
+        if (modalEur) modalEur.textContent = `€${formatPrice(totalEur)}`;
+        const modalEgp = document.getElementById('portModalEgp');
+        if (modalEgp) modalEgp.textContent = eurEgp ? `${formatPrice(totalEgp)} EGP` : '--';
+        const modalPnl = document.getElementById('portModalPnl');
+        if (modalPnl) {
+            modalPnl.textContent = hasCostBasis ? pnlText : '--';
+            modalPnl.className = `portfolio-stat-val ${pnlClass}`;
+        }
+
+        const listEl = document.getElementById('portfolioItemsList');
+        if (listEl) {
+            if (items.length === 0) {
+                listEl.innerHTML = `<div style="text-align:center; padding: 18px; color: var(--text-muted); font-size: 12px;">No holdings yet. Add your first bar or coin above!</div>`;
+            } else {
+                listEl.innerHTML = items.map((item, idx) => {
+                    const meta = PORTFOLIO_ASSETS[item.asset] || PORTFOLIO_ASSETS.spot_gram;
+                    const unitEur = getAssetUnitEur(item.asset, data);
+                    const valEur = unitEur * (parseFloat(item.qty) || 0);
+                    let itemPnlHtml = '';
+                    if (item.cost && parseFloat(item.cost) > 0 && valEur > 0) {
+                        const diff = valEur - parseFloat(item.cost);
+                        const pct = (diff / parseFloat(item.cost)) * 100;
+                        const s = diff >= 0 ? '+' : '';
+                        itemPnlHtml = `<div class="portfolio-item-pnl ${diff >= 0 ? 'pnl-pos' : 'pnl-neg'}">${s}€${formatPrice(diff)} (${s}${pct.toFixed(1)}%)</div>`;
+                    }
+                    const notePart = item.note ? ` · ${escapeHtml(item.note)}` : '';
+                    return `
+                        <div class="portfolio-item">
+                            <div class="portfolio-item-info">
+                                <div class="portfolio-item-title">${item.qty} × ${meta.label}</div>
+                                <div class="portfolio-item-sub">${formatNumber(meta.grams * item.qty, 2)}g${item.cost ? ` · Paid €${formatPrice(item.cost)}` : ''}${notePart}</div>
+                            </div>
+                            <div class="portfolio-item-right">
+                                <div class="portfolio-item-val">€${formatPrice(valEur)}</div>
+                                ${itemPnlHtml}
+                            </div>
+                            <button class="portfolio-del-btn" onclick="removePortfolioItem(${idx})" title="Remove holding">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    function openPortfolioModal(event) {
+        if (event) { event.stopPropagation(); event.preventDefault(); }
+        renderPortfolio(lastData);
+        document.getElementById('portfolioModalBackdrop').classList.add('open');
+    }
+
+    function closePortfolioModal() {
+        document.getElementById('portfolioModalBackdrop').classList.remove('open');
+    }
+
+    function handlePortfolioBackdropClick(e) {
+        if (e.target === document.getElementById('portfolioModalBackdrop')) closePortfolioModal();
+    }
+
+    function addPortfolioItem() {
+        const asset = document.getElementById('portAssetSelect').value;
+        const qty = parseFloat(document.getElementById('portQtyInput').value);
+        const costRaw = document.getElementById('portCostInput').value;
+        const cost = costRaw ? parseFloat(costRaw) : null;
+        const note = document.getElementById('portNoteInput').value.trim();
+
+        if (!qty || qty <= 0) {
+            showToast('Please enter a valid quantity');
+            return;
+        }
+
+        const items = getPortfolio();
+        items.push({ asset, qty, cost, note, addedAt: Date.now() });
+        savePortfolio(items);
+
+        document.getElementById('portCostInput').value = '';
+        document.getElementById('portNoteInput').value = '';
+        renderPortfolio(lastData);
+        showToast('Holding added to portfolio!');
+    }
+
+    function removePortfolioItem(index) {
+        const items = getPortfolio();
+        items.splice(index, 1);
+        savePortfolio(items);
+        renderPortfolio(lastData);
+        showToast('Holding removed');
     }
 
     // --- 📈 SVG Sparkline Generator ---
@@ -2547,6 +3112,16 @@
                 ? (data.exchange_rates.eur_egp / data.exchange_rates.usd_egp) : 1.08;
             const philPoints = sparklines.gold.map(oz => roundVal(oz / eurUsd, 2));
             drawSparkline('sparkline-mint-phil', philPoints, '€', '7d');
+        }
+
+        // 8. Gold 1g 24K in EGP Trend
+        if (sparklines.gold && sparklines.usd_egp && sparklines.gold.length > 1) {
+            const fallbackUsdEgp = (data.exchange_rates && data.exchange_rates.usd_egp) || 50;
+            const egpGoldPoints = sparklines.gold.map((oz, i) => {
+                const rate = sparklines.usd_egp[i] || fallbackUsdEgp;
+                return roundVal((oz / 31.1035) * rate, 2);
+            });
+            drawSparkline('sparkline-gold-egp', egpGoldPoints, 'EGP', '7d');
         }
     }
 
@@ -2727,6 +3302,7 @@
         initCardVisibility();
         applyCardSizes();
         initScrollMode();
+        renderPortfolio();
         fetchData();
     });
 
@@ -2735,6 +3311,7 @@
         if (e.key === 'Escape') {
             closeCalculator();
             closeCardsModal();
+            closePortfolioModal();
         }
     });
 
