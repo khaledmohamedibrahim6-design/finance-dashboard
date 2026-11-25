@@ -381,6 +381,54 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
+        .card-top-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.15s ease;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .card-close-btn:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+            transform: scale(1.1);
+        }
+
+        .dash-card.card-hidden {
+            display: none !important;
+        }
+
+        .dash-card.card-hiding {
+            opacity: 0 !important;
+            transform: scale(0.92) !important;
+            transition: opacity 0.2s ease, transform 0.2s ease !important;
+        }
+
+        .dash-card.card-showing {
+            animation: cardFadeIn 0.25s ease-out;
+        }
+
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
         /* Card Content & Values */
         .card-main-val {
             font-family: 'JetBrains Mono', monospace;
@@ -839,6 +887,135 @@
             margin-top: 8px;
         }
 
+        /* 🎛️ Cards Manager Modal & Switch Styles */
+        .cards-count-badge {
+            font-size: 10px;
+            font-weight: 700;
+            background: var(--accent-gold-dim);
+            color: var(--accent-gold);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-left: 2px;
+        }
+
+        .cards-manager-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--box-sub-bg);
+            border: 1px solid var(--box-sub-border);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: border-color 0.15s, background 0.15s;
+            cursor: pointer;
+        }
+
+        .cards-manager-item:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+        }
+
+        .cards-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cards-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .cards-item-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            line-height: 1.2;
+        }
+
+        .cards-item-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Modern iOS-style toggle switch */
+        .card-toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .card-toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .card-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: var(--border);
+            border-radius: 24px;
+            transition: 0.22s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .card-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+        }
+
+        .card-toggle-switch input:checked + .card-toggle-slider {
+            background-color: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+
+        .card-toggle-switch input:checked + .card-toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Empty state when user hides all cards */
+        .empty-cards-state {
+            grid-column: span 12;
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--bg-card);
+            border: 1px dashed var(--border-hover);
+            border-radius: var(--radius);
+            margin: 14px 0;
+        }
+
+        .empty-cards-state h3 {
+            font-size: 16px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .empty-cards-state p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
         /* ========================================================
            📱 SPECIAL MOBILE COMPACT NO-SCROLL VIEW (Default & Mode)
            ======================================================== */
@@ -938,6 +1115,16 @@
                 padding: 2px 4px;
             }
 
+            .card-close-btn {
+                font-size: 11px;
+                width: 20px;
+                height: 20px;
+            }
+
+            .card-top-right {
+                gap: 4px;
+            }
+
             .card-main-val {
                 font-size: 19px;
                 margin-bottom: 4px;
@@ -1030,6 +1217,11 @@
                 <i class="fas fa-calculator"></i>
                 <span>Calc</span>
             </button>
+            <button class="btn-action" id="cardsManagerBtn" onclick="openCardsModal()" title="Manage Visible Cards">
+                <i class="fas fa-layer-group"></i>
+                <span>Cards</span>
+                <span class="cards-count-badge" id="cardsVisibleCount">7/7</span>
+            </button>
             <button class="btn-action" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Light / Dark Mode">
                 <i class="fas fa-sun" id="themeIcon"></i>
                 <span id="themeBtnText">Light</span>
@@ -1072,9 +1264,12 @@
                         <p id="goldMarketTime">Live spot market</p>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="card-top-right">
                     <span class="card-badge badge-neutral" id="goldChangeBadge">--</span>
-                    <i class="fas fa-grip-vertical drag-handle"></i>
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-gold-spot')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
 
@@ -1130,7 +1325,12 @@
                         <p>US Dollar to Egyptian Pound</p>
                     </div>
                 </div>
-                <i class="fas fa-grip-vertical drag-handle"></i>
+                <div class="card-top-right">
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-usd-egp')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <div class="card-main-val" id="usdEgpValue">
@@ -1162,7 +1362,12 @@
                         <p>Euro to Egyptian Pound</p>
                     </div>
                 </div>
-                <i class="fas fa-grip-vertical drag-handle"></i>
+                <div class="card-top-right">
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-eur-egp')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <div class="card-main-val" id="eurEgpValue">
@@ -1194,7 +1399,12 @@
                         <p>Cross rate</p>
                     </div>
                 </div>
-                <i class="fas fa-grip-vertical drag-handle"></i>
+                <div class="card-top-right">
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-eur-usd')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <div class="card-main-val" id="eurUsdValue">
@@ -1226,7 +1436,12 @@
                         <p>Münze Österreich · 999.9</p>
                     </div>
                 </div>
-                <i class="fas fa-grip-vertical drag-handle"></i>
+                <div class="card-top-right">
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-mint-20g')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <div class="card-main-val" id="bar20gPrice">
@@ -1261,7 +1476,12 @@
                         <p>Münze Österreich · 31.1g</p>
                     </div>
                 </div>
-                <i class="fas fa-grip-vertical drag-handle"></i>
+                <div class="card-top-right">
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-mint-phil')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <div class="card-main-val" id="philPrice">
@@ -1296,7 +1516,12 @@
                         <p>philoro EDELMETALLE · 999.9</p>
                     </div>
                 </div>
-                <i class="fas fa-grip-vertical drag-handle"></i>
+                <div class="card-top-right">
+                    <i class="fas fa-grip-vertical drag-handle" title="Hold & drag to reorder"></i>
+                    <button class="card-close-btn" onclick="hideCard(event, 'card-philoro-20g')" title="Hide card" aria-label="Hide card">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <div class="card-main-val" id="philoro20gPrice">
@@ -1317,6 +1542,16 @@
             <a class="card-link" href="https://philoro.at/produkt/goldbarren-20-g-philoro-origin-2445v" target="_blank">
                 philoro Product Page <i class="fas fa-external-link-alt"></i>
             </a>
+        </div>
+
+        <!-- Empty state when all cards hidden -->
+        <div class="empty-cards-state" id="emptyCardsState" style="display: none;">
+            <i class="fas fa-eye-slash" style="font-size: 32px; color: var(--text-muted); margin-bottom: 12px; display: block;"></i>
+            <h3>All Cards Are Hidden</h3>
+            <p>You can re-enable your cards anytime from the Cards menu above.</p>
+            <button class="btn-action" onclick="showAllCards()" style="margin: 14px auto 0; background: var(--accent-gold); color: #000; border-color: var(--accent-gold); font-weight: 700;">
+                <i class="fas fa-eye"></i> Show All Cards
+            </button>
         </div>
 
     </div>
@@ -1405,6 +1640,34 @@
     </div>
 </div>
 
+<!-- 🎛️ Customize Visible Cards Modal -->
+<div class="calc-backdrop" id="cardsModalBackdrop" onclick="handleCardsBackdropClick(event)">
+    <div class="calc-sheet" id="cardsSheet" style="max-width: 440px;">
+        <div class="calc-header">
+            <h3><i class="fas fa-layer-group" style="color: var(--accent-gold);"></i> Customize Cards</h3>
+            <button class="btn-close-calc" onclick="closeCardsModal()" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+            Select which cards to display on your dashboard. Changes save automatically.
+        </p>
+
+        <div class="cards-select-list" id="cardsSelectList">
+            <!-- Dynamic items rendered by JS -->
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 16px;">
+            <button class="btn-action" style="flex: 1; justify-content: center; padding: 10px;" onclick="showAllCards()">
+                <i class="fas fa-eye"></i> Show All
+            </button>
+            <button class="btn-action" style="flex: 1; justify-content: center; padding: 10px;" onclick="resetCardsToDefault()">
+                <i class="fas fa-undo"></i> Reset Default
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     const AUTO_REFRESH_INTERVAL = 300; // 5 minutes
     const ORDER_STORAGE_KEY = 'finance_dashboard_card_order';
@@ -1430,6 +1693,8 @@
         sortableInstance = new Sortable(grid, {
             animation: 200,
             handle: '.drag-handle, .dash-card',
+            filter: '.card-close-btn, .card-close-btn *, a.card-link',
+            preventOnFilter: false,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
             delay: 150, // Slight hold delay on touch so users don't drag unintentionally
@@ -1507,6 +1772,245 @@
             if (el) grid.appendChild(el);
         });
         showToast('Default layout restored');
+    }
+
+    // --- 🎛️ Card Visibility Manager ---
+    const HIDDEN_CARDS_KEY = 'finance_dashboard_hidden_cards';
+
+    const ALL_CARDS = [
+        {
+            id: 'card-gold-spot',
+            name: 'Gold Spot & Silver',
+            desc: 'Live Spot (XAU), Gram USD/EUR/EGP, Silver (XAG)',
+            icon: 'fas fa-gem',
+            iconClass: 'icon-gold'
+        },
+        {
+            id: 'card-usd-egp',
+            name: 'USD → EGP',
+            desc: 'US Dollar to Egyptian Pound official rate',
+            icon: 'fas fa-dollar-sign',
+            iconClass: 'icon-blue'
+        },
+        {
+            id: 'card-eur-egp',
+            name: 'EUR → EGP',
+            desc: 'Euro to Egyptian Pound official rate',
+            icon: 'fas fa-euro-sign',
+            iconClass: 'icon-purple'
+        },
+        {
+            id: 'card-eur-usd',
+            name: 'EUR → USD',
+            desc: 'Euro to US Dollar market cross rate',
+            icon: 'fas fa-chart-pie',
+            iconClass: 'icon-green'
+        },
+        {
+            id: 'card-mint-20g',
+            name: '20g Austrian Mint Bar',
+            desc: 'Münze Österreich 20g Gold Bar (999.9)',
+            icon: 'fas fa-bars',
+            iconClass: 'icon-orange'
+        },
+        {
+            id: 'card-philoro-20g',
+            name: '20g philoro Origin',
+            desc: 'philoro 20g Bar (Kauf & Buyback prices)',
+            icon: 'fas fa-cube',
+            iconClass: 'icon-gold'
+        },
+        {
+            id: 'card-mint-phil',
+            name: '1 oz Philharmoniker',
+            desc: 'Münze Österreich 1 oz Gold Coin (999.9)',
+            icon: 'fas fa-compact-disc',
+            iconClass: 'icon-gold'
+        }
+    ];
+
+    function getHiddenCards() {
+        try {
+            const raw = localStorage.getItem(HIDDEN_CARDS_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveHiddenCards(hiddenList) {
+        localStorage.setItem(HIDDEN_CARDS_KEY, JSON.stringify(hiddenList));
+    }
+
+    function initCardVisibility() {
+        const hidden = getHiddenCards();
+        ALL_CARDS.forEach(card => {
+            const el = document.getElementById(card.id);
+            if (el) {
+                if (hidden.includes(card.id)) {
+                    el.classList.add('card-hidden');
+                } else {
+                    el.classList.remove('card-hidden');
+                }
+            }
+        });
+        updateCardsManagerUI();
+    }
+
+    function hideCard(event, cardId) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        const cardEl = document.getElementById(cardId);
+        if (!cardEl) return;
+
+        cardEl.classList.add('card-hiding');
+        setTimeout(() => {
+            cardEl.classList.add('card-hidden');
+            cardEl.classList.remove('card-hiding');
+
+            let hidden = getHiddenCards();
+            if (!hidden.includes(cardId)) {
+                hidden.push(cardId);
+                saveHiddenCards(hidden);
+            }
+            updateCardsManagerUI();
+            const cardObj = ALL_CARDS.find(c => c.id === cardId);
+            const cardName = cardObj ? cardObj.name : 'Card';
+            showToast(`${cardName} hidden · Open Cards to restore`);
+        }, 200);
+    }
+
+    function toggleCardFromManager(cardId, isChecked) {
+        const cardEl = document.getElementById(cardId);
+        let hidden = getHiddenCards();
+        if (isChecked) {
+            hidden = hidden.filter(id => id !== cardId);
+            saveHiddenCards(hidden);
+            if (cardEl) {
+                cardEl.classList.remove('card-hidden');
+                cardEl.classList.add('card-showing');
+                setTimeout(() => cardEl.classList.remove('card-showing'), 250);
+            }
+        } else {
+            if (!hidden.includes(cardId)) {
+                hidden.push(cardId);
+                saveHiddenCards(hidden);
+            }
+            if (cardEl) {
+                cardEl.classList.add('card-hidden');
+            }
+        }
+        updateCardsManagerUI();
+    }
+
+    function showAllCards() {
+        saveHiddenCards([]);
+        ALL_CARDS.forEach(card => {
+            const el = document.getElementById(card.id);
+            if (el) {
+                el.classList.remove('card-hidden');
+                el.classList.add('card-showing');
+                setTimeout(() => el.classList.remove('card-showing'), 250);
+            }
+        });
+        updateCardsManagerUI();
+        showToast('All 7 cards are now visible');
+    }
+
+    function resetCardsToDefault() {
+        showAllCards();
+        resetCardOrder();
+    }
+
+    function updateCardsManagerUI() {
+        const hidden = getHiddenCards();
+        const visibleCount = ALL_CARDS.length - hidden.length;
+
+        // Update count badge on header button
+        const countBadge = document.getElementById('cardsVisibleCount');
+        if (countBadge) {
+            countBadge.textContent = `${visibleCount}/${ALL_CARDS.length}`;
+            if (visibleCount < ALL_CARDS.length) {
+                countBadge.style.color = 'var(--accent-gold)';
+                countBadge.style.borderColor = 'var(--accent-gold)';
+            } else {
+                countBadge.style.color = '';
+                countBadge.style.borderColor = '';
+            }
+        }
+
+        // Show / hide empty state
+        const emptyState = document.getElementById('emptyCardsState');
+        if (emptyState) {
+            emptyState.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
+
+        // Render items inside modal list
+        renderCardsManagerList(hidden);
+    }
+
+    function renderCardsManagerList(hidden) {
+        const container = document.getElementById('cardsSelectList');
+        if (!container) return;
+
+        container.innerHTML = ALL_CARDS.map(card => {
+            const isVisible = !hidden.includes(card.id);
+            return `
+                <div class="cards-manager-item" onclick="handleCardRowClick('${card.id}')">
+                    <div class="cards-item-left">
+                        <div class="cards-item-icon ${card.iconClass}">
+                            <i class="${card.icon}"></i>
+                        </div>
+                        <div class="cards-item-info">
+                            <h4>${card.name}</h4>
+                            <p>${card.desc}</p>
+                        </div>
+                    </div>
+                    <label class="card-toggle-switch" onclick="event.stopPropagation()">
+                        <input type="checkbox" id="toggle_${card.id}" ${isVisible ? 'checked' : ''} onchange="toggleCardFromManager('${card.id}', this.checked)">
+                        <span class="card-toggle-slider"></span>
+                    </label>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function handleCardRowClick(cardId) {
+        const toggle = document.getElementById(`toggle_${cardId}`);
+        if (toggle) {
+            toggle.checked = !toggle.checked;
+            toggleCardFromManager(cardId, toggle.checked);
+        }
+    }
+
+    function openCardsModal() {
+        const backdrop = document.getElementById('cardsModalBackdrop');
+        if (backdrop) {
+            renderCardsManagerList(getHiddenCards());
+            backdrop.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeCardsModal() {
+        const backdrop = document.getElementById('cardsModalBackdrop');
+        if (backdrop) {
+            backdrop.classList.remove('open');
+            const isScrollMode = document.body.classList.contains('mode-scroll');
+            if (window.innerWidth <= 768 && !isScrollMode) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+    }
+
+    function handleCardsBackdropClick(e) {
+        if (e.target.id === 'cardsModalBackdrop') {
+            closeCardsModal();
+        }
     }
 
     // --- Light / Dark Theme Mode ---
@@ -1974,8 +2478,17 @@
     document.addEventListener('DOMContentLoaded', () => {
         initTheme();
         initDragAndDrop();
+        initCardVisibility();
         initScrollMode();
         fetchData();
+    });
+
+    // Close modals on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeCalculator();
+            closeCardsModal();
+        }
     });
 
     setInterval(() => {
