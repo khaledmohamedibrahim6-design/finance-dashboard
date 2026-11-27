@@ -450,12 +450,12 @@ def fetch_philoro_20g_bar():
         "Accept": "application/json, text/plain, */*",
     }
 
-    # Primary: Direct dynamic price API (batch both 2445 and 2005 in one request)
-    batch = _fetch_philoro_api_skus(["2445", "2005"], headers)
+    # Primary: Direct dynamic price API (batch 2445, 2005, 1506 in one request)
+    batch = _fetch_philoro_api_skus(["2445", "2005", "1506"], headers)
     if "2445" in batch:
         product.update(batch["2445"])
     if "2005" in batch:
-        mint_p = {
+        _set_cached("philoro_mint_20g", {
             "name": "Goldbarren 20 g - Münze Österreich (philoro)",
             "weight": "20g",
             "purity": "999.9",
@@ -463,8 +463,17 @@ def fetch_philoro_20g_bar():
             "url": "https://philoro.at/produkt/goldbarren-20-g-muenze-oesterreich-2005v",
             "updated_at": datetime.now(timezone.utc).isoformat(),
             **batch["2005"],
-        }
-        _set_cached("philoro_mint_20g", mint_p)
+        })
+    if "1506" in batch:
+        _set_cached("philoro_mint_phil", {
+            "name": "Gold Philharmoniker 1 oz (philoro)",
+            "weight": "1oz (31.1035g)",
+            "purity": "999.9",
+            "currency": "EUR",
+            "url": "https://philoro.at/produkt/gold-philharmoniker-1-oz-1506v",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            **batch["1506"],
+        })
 
     # Fallback 1: Extract from page HTML regex
     if "price" not in product:
@@ -511,18 +520,17 @@ def fetch_philoro_20g_bar():
     return product
 
 
-def fetch_philoro_mint_20g_bar():
-    """Fetch live Philoro price for the 20g Münze Österreich Gold Bar (SKU 2005)."""
-    cached = _get_cached("philoro_mint_20g")
+def _fetch_philoro_single_sku(cache_key, sku, name, weight, url):
+    """Return cached Philoro SKU or fetch it directly as a fallback."""
+    cached = _get_cached(cache_key)
     if cached:
         return cached
-
     product = {
-        "name": "Goldbarren 20 g - Münze Österreich (philoro)",
-        "weight": "20g",
+        "name": name,
+        "weight": weight,
         "purity": "999.9",
         "currency": "EUR",
-        "url": "https://philoro.at/produkt/goldbarren-20-g-muenze-oesterreich-2005v",
+        "url": url,
     }
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -530,13 +538,35 @@ def fetch_philoro_mint_20g_bar():
         "Referer": "https://philoro.at/",
         "Accept": "application/json, text/plain, */*",
     }
-    batch = _fetch_philoro_api_skus(["2005"], headers)
-    if "2005" in batch:
-        product.update(batch["2005"])
+    batch = _fetch_philoro_api_skus([sku], headers)
+    if sku in batch:
+        product.update(batch[sku])
     product["updated_at"] = datetime.now(timezone.utc).isoformat()
     if product.get("price"):
-        _set_cached("philoro_mint_20g", product)
+        _set_cached(cache_key, product)
     return product
+
+
+def fetch_philoro_mint_20g_bar():
+    """Fetch live Philoro price for the 20g Münze Österreich Gold Bar (SKU 2005)."""
+    return _fetch_philoro_single_sku(
+        "philoro_mint_20g",
+        "2005",
+        "Goldbarren 20 g - Münze Österreich (philoro)",
+        "20g",
+        "https://philoro.at/produkt/goldbarren-20-g-muenze-oesterreich-2005v",
+    )
+
+
+def fetch_philoro_mint_phil():
+    """Fetch live Philoro price for the 1 oz Wiener Philharmoniker (SKU 1506)."""
+    return _fetch_philoro_single_sku(
+        "philoro_mint_phil",
+        "1506",
+        "Gold Philharmoniker 1 oz (philoro)",
+        "1oz (31.1035g)",
+        "https://philoro.at/produkt/gold-philharmoniker-1-oz-1506v",
+    )
 
 
 def fetch_sparklines():
@@ -702,6 +732,7 @@ def fetch_all_data():
         t.join(timeout=20)
 
     results["philoro_mint_20g_bar"] = fetch_philoro_mint_20g_bar()
+    results["philoro_mint_philharmoniker"] = fetch_philoro_mint_phil()
     results["fetched_at"] = datetime.now(timezone.utc).isoformat()
     if errors:
         results["errors"] = errors

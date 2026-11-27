@@ -2140,25 +2140,35 @@
                 <div class="card-main-val" id="philPrice">
                     <span class="skeleton sk-val"></span>
                 </div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;" id="philBestSource">Münze Österreich (100 EUR)</div>
             </div>
             <div class="sparkline-box" id="sparkline-mint-phil"></div>
             <div class="card-sub-box">
                 <div class="sub-row">
-                    <span class="sub-label">In EGP:</span>
-                    <span class="sub-val gold" id="philEgpValue">--</span>
+                    <span class="sub-label">Münze Österreich:</span>
+                    <span class="sub-val" id="philMintPrice">--</span>
                 </div>
                 <div class="sub-row">
-                    <span class="sub-label">Face Value:</span>
-                    <span class="sub-val">100 EUR</span>
+                    <span class="sub-label">philoro.at:</span>
+                    <span class="sub-val" id="philPhiloroPrice">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">In EGP (Best):</span>
+                    <span class="sub-val gold" id="philEgpValue">--</span>
                 </div>
                 <div class="sub-row">
                     <span class="sub-label">Spot Premium:</span>
                     <span class="sub-val" id="philPremium">--</span>
                 </div>
             </div>
-            <a class="card-link" href="https://www.muenzeoesterreich.at/produkte/1-unze-gold-wiener-philharmoniker" target="_blank">
-                Austrian Mint Page <i class="fas fa-external-link-alt"></i>
-            </a>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <a class="card-link" href="https://www.muenzeoesterreich.at/produkte/1-unze-gold-wiener-philharmoniker" target="_blank">
+                    Münze Österreich <i class="fas fa-external-link-alt"></i>
+                </a>
+                <a class="card-link" href="https://philoro.at/produkt/gold-philharmoniker-1-oz-1506v" target="_blank">
+                    philoro.at <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
         </div>
 
         <!-- 7. Philoro 20g Gold Bar (Origin) -->
@@ -3386,18 +3396,45 @@
         }
 
         const phil = data.mint_philharmoniker || {};
-        if (phil.price) {
-            const p = parseFloat(phil.price);
+        const philoroPhil = data.philoro_mint_philharmoniker || {};
+        const philMintP = phil.price ? parseFloat(phil.price) : null;
+        const philPhiloroP = philoroPhil.price ? parseFloat(philoroPhil.price) : null;
+
+        const philMintRowEl = document.getElementById('philMintPrice');
+        if (philMintRowEl) philMintRowEl.textContent = philMintP ? `€${formatPrice(philMintP)}` : '--';
+
+        const philPhiloroRowEl = document.getElementById('philPhiloroPrice');
+        if (philPhiloroRowEl) philPhiloroRowEl.textContent = philPhiloroP ? `€${formatPrice(philPhiloroP)}` : '--';
+
+        const bestPhil = (philMintP && philPhiloroP) ? Math.min(philMintP, philPhiloroP) : (philMintP || philPhiloroP);
+        if (bestPhil) {
             document.getElementById('philPrice').innerHTML =
-                `<span class="curr">€</span>${formatPrice(p)}`;
+                `<span class="curr">€</span>${formatPrice(bestPhil)}`;
+
+            const srcEl = document.getElementById('philBestSource');
+            if (srcEl) {
+                if (philMintP && philPhiloroP) {
+                    const diff = Math.abs(philMintP - philPhiloroP);
+                    if (philMintP <= philPhiloroP) {
+                        srcEl.textContent = `Lowest at Münze Österreich (−€${formatPrice(diff)} vs philoro)`;
+                        srcEl.style.color = 'var(--accent-green)';
+                    } else {
+                        srcEl.textContent = `Lowest at philoro.at (−€${formatPrice(diff)} vs Mint)`;
+                        srcEl.style.color = 'var(--accent-green)';
+                    }
+                } else {
+                    srcEl.textContent = philMintP ? 'Münze Österreich (100 EUR)' : 'philoro.at';
+                }
+            }
+
             if (eurEgp) {
                 document.getElementById('philEgpValue').textContent =
-                    formatPrice(p * eurEgp) + ' EGP';
+                    formatPrice(bestPhil * eurEgp) + ' EGP';
             }
             const premEl = document.getElementById('philPremium');
             if (premEl && spotEurGram > 0) {
                 const spotOz = spotEurGram * 31.1035;
-                const diff = p - spotOz;
+                const diff = bestPhil - spotOz;
                 const pct = (diff / spotOz) * 100;
                 premEl.textContent = `${diff >= 0 ? '+' : ''}€${formatPrice(diff)} (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`;
             }
