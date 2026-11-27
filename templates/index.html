@@ -2082,25 +2082,35 @@
                 <div class="card-main-val" id="bar20gPrice">
                     <span class="skeleton sk-val"></span>
                 </div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;" id="bar20gBestSource">Münze Österreich (Direct)</div>
             </div>
             <div class="sparkline-box" id="sparkline-mint-20g"></div>
             <div class="card-sub-box">
                 <div class="sub-row">
-                    <span class="sub-label">In EGP:</span>
-                    <span class="sub-val gold" id="bar20gEgpValue">--</span>
+                    <span class="sub-label">Münze Österreich:</span>
+                    <span class="sub-val" id="bar20gMintPrice">--</span>
                 </div>
                 <div class="sub-row">
-                    <span class="sub-label">VAT / Tax:</span>
-                    <span class="sub-val" style="color: var(--accent-green);">0% Tax Free</span>
+                    <span class="sub-label">philoro.at:</span>
+                    <span class="sub-val" id="bar20gPhiloroPrice">--</span>
+                </div>
+                <div class="sub-row">
+                    <span class="sub-label">In EGP (Best):</span>
+                    <span class="sub-val gold" id="bar20gEgpValue">--</span>
                 </div>
                 <div class="sub-row">
                     <span class="sub-label">Spot Premium:</span>
                     <span class="sub-val" id="bar20gPremium">--</span>
                 </div>
             </div>
-            <a class="card-link" href="https://www.muenzeoesterreich.com/en/products/20-gram-gold-muenze-oesterreich-minted-bar" target="_blank">
-                Austrian Mint Page <i class="fas fa-external-link-alt"></i>
-            </a>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <a class="card-link" href="https://www.muenzeoesterreich.com/en/products/20-gram-gold-muenze-oesterreich-minted-bar" target="_blank">
+                    Münze Österreich <i class="fas fa-external-link-alt"></i>
+                </a>
+                <a class="card-link" href="https://philoro.at/produkt/goldbarren-20-g-muenze-oesterreich-2005v" target="_blank">
+                    philoro.at <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
         </div>
 
         <!-- 6. Austrian Mint 1oz Philharmoniker -->
@@ -3331,18 +3341,45 @@
         const spotEurGram = gold.eur_gram || (gold.usd_gram ? gold.usd_gram / eurUsdRatio : 0);
 
         const bar20g = data.mint_20g_bar || {};
-        if (bar20g.price) {
-            const p = parseFloat(bar20g.price);
+        const philoroMint20g = data.philoro_mint_20g_bar || {};
+        const mintP = bar20g.price ? parseFloat(bar20g.price) : null;
+        const philoroMintP = philoroMint20g.price ? parseFloat(philoroMint20g.price) : null;
+
+        const mintRowEl = document.getElementById('bar20gMintPrice');
+        if (mintRowEl) mintRowEl.textContent = mintP ? `€${formatPrice(mintP)}` : '--';
+
+        const philoroRowEl = document.getElementById('bar20gPhiloroPrice');
+        if (philoroRowEl) philoroRowEl.textContent = philoroMintP ? `€${formatPrice(philoroMintP)}` : '--';
+
+        const best20g = (mintP && philoroMintP) ? Math.min(mintP, philoroMintP) : (mintP || philoroMintP);
+        if (best20g) {
             document.getElementById('bar20gPrice').innerHTML =
-                `<span class="curr">€</span>${formatPrice(p)}`;
+                `<span class="curr">€</span>${formatPrice(best20g)}`;
+
+            const srcEl = document.getElementById('bar20gBestSource');
+            if (srcEl) {
+                if (mintP && philoroMintP) {
+                    const diff = Math.abs(mintP - philoroMintP);
+                    if (mintP <= philoroMintP) {
+                        srcEl.textContent = `Lowest at Münze Österreich (−€${formatPrice(diff)} vs philoro)`;
+                        srcEl.style.color = 'var(--accent-green)';
+                    } else {
+                        srcEl.textContent = `Lowest at philoro.at (−€${formatPrice(diff)} vs Mint)`;
+                        srcEl.style.color = 'var(--accent-green)';
+                    }
+                } else {
+                    srcEl.textContent = mintP ? 'Münze Österreich (Direct)' : 'philoro.at';
+                }
+            }
+
             if (eurEgp) {
                 document.getElementById('bar20gEgpValue').textContent =
-                    formatPrice(p * eurEgp) + ' EGP';
+                    formatPrice(best20g * eurEgp) + ' EGP';
             }
             const premEl = document.getElementById('bar20gPremium');
             if (premEl && spotEurGram > 0) {
                 const spot20 = spotEurGram * 20;
-                const diff = p - spot20;
+                const diff = best20g - spot20;
                 const pct = (diff / spot20) * 100;
                 premEl.textContent = `${diff >= 0 ? '+' : ''}€${formatPrice(diff)} (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`;
             }

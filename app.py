@@ -402,8 +402,35 @@ def fetch_mint_philharmoniker():
     return product
 
 
+def _fetch_philoro_api_skus(skus, headers):
+    """Fetch buy and sell prices for one or more Philoro AT SKUs in a single API call."""
+    results = {}
+    try:
+        sku_str = ",".join(skus) if isinstance(skus, (list, tuple)) else str(skus)
+        api_url = f"https://api.prod-eu.philoro.ch/api/prices/products?skus={sku_str}&country=AT&currency=EUR"
+        resp = requests.get(api_url, headers=headers, timeout=12)
+        if resp.status_code == 200:
+            data = resp.json()
+            for prod in data.get("products", []):
+                sku = str(prod.get("sku") or prod.get("id") or "")
+                entry = {}
+                for p in prod.get("prices", []):
+                    if p.get("country") == "AT" and p.get("type") == "buy":
+                        val = round(int(p["centAmount"]) / 100.0, 2)
+                        entry["price"] = str(val)
+                        entry["buy_price"] = str(val)
+                    elif p.get("country") == "AT" and p.get("type") == "sell":
+                        val = round(int(p["centAmount"]) / 100.0, 2)
+                        entry["sell_price"] = str(val)
+                if sku and entry:
+                    results[sku] = entry
+    except Exception as e:
+        print(f"Philoro API error (SKUs {skus}): {e}")
+    return results
+
+
 def fetch_philoro_20g_bar():
-    """Fetch live real-time price of 20g Philoro Gold Bar (Origin) via direct API and HTML fallback."""
+    """Fetch live real-time price of 20g Philoro Gold Bar (Origin) & Münze Österreich (SKU 2005) in one batch call."""
     cached = _get_cached("philoro_20g")
     if cached:
         return cached
@@ -423,25 +450,21 @@ def fetch_philoro_20g_bar():
         "Accept": "application/json, text/plain, */*",
     }
 
-    # Primary: Direct dynamic price API (official endpoint called by philoro frontend)
-    try:
-        api_url = "https://api.prod-eu.philoro.ch/api/prices/products?skus=2445&country=AT&currency=EUR"
-        resp = requests.get(api_url, headers=headers, timeout=8)
-        if resp.status_code == 200:
-            data = resp.json()
-            products = data.get("products", [])
-            if products:
-                prices = products[0].get("prices", [])
-                for p in prices:
-                    if p.get("country") == "AT" and p.get("type") == "buy":
-                        val = round(int(p["centAmount"]) / 100.0, 2)
-                        product["price"] = str(val)
-                        product["buy_price"] = str(val)
-                    elif p.get("country") == "AT" and p.get("type") == "sell":
-                        val = round(int(p["centAmount"]) / 100.0, 2)
-                        product["sell_price"] = str(val)
-    except Exception as e:
-        print(f"Philoro API error: {e}")
+    # Primary: Direct dynamic price API (batch both 2445 and 2005 in one request)
+    batch = _fetch_philoro_api_skus(["2445", "2005"], headers)
+    if "2445" in batch:
+        product.update(batch["2445"])
+    if "2005" in batch:
+        mint_p = {
+            "name": "Goldbarren 20 g - Münze Österreich (philoro)",
+            "weight": "20g",
+            "purity": "999.9",
+            "currency": "EUR",
+            "url": "https://philoro.at/produkt/goldbarren-20-g-muenze-oesterreich-2005v",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            **batch["2005"],
+        }
+        _set_cached("philoro_mint_20g", mint_p)
 
     # Fallback 1: Extract from page HTML regex
     if "price" not in product:
@@ -485,6 +508,34 @@ def fetch_philoro_20g_bar():
     product["updated_at"] = datetime.now(timezone.utc).isoformat()
     if product.get("price"):
         _set_cached("philoro_20g", product)
+    return product
+
+
+def fetch_philoro_mint_20g_bar():
+    """Fetch live Philoro price for the 20g Münze Österreich Gold Bar (SKU 2005)."""
+    cached = _get_cached("philoro_mint_20g")
+    if cached:
+        return cached
+
+    product = {
+        "name": "Goldbarren 20 g - Münze Österreich (philoro)",
+        "weight": "20g",
+        "purity": "999.9",
+        "currency": "EUR",
+        "url": "https://philoro.at/produkt/goldbarren-20-g-muenze-oesterreich-2005v",
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Origin": "https://philoro.at",
+        "Referer": "https://philoro.at/",
+        "Accept": "application/json, text/plain, */*",
+    }
+    batch = _fetch_philoro_api_skus(["2005"], headers)
+    if "2005" in batch:
+        product.update(batch["2005"])
+    product["updated_at"] = datetime.now(timezone.utc).isoformat()
+    if product.get("price"):
+        _set_cached("philoro_mint_20g", product)
     return product
 
 
@@ -650,6 +701,7 @@ def fetch_all_data():
     for t in threads:
         t.join(timeout=20)
 
+    results["philoro_mint_20g_bar"] = fetch_philoro_mint_20g_bar()
     results["fetched_at"] = datetime.now(timezone.utc).isoformat()
     if errors:
         results["errors"] = errors
